@@ -1,0 +1,18 @@
+wood: 
+  display: Wood
+  qty : 1
+spears: 
+  display: Spears
+  qty: 10
+fish: 
+  display: Fish
+  qty: 4
+rock: 
+  display: Rock
+  qty: 2
+brick:
+  display: Bricks
+  qty: 0
+wall:
+  display: Wall
+  qty: 3
