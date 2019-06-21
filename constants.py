@@ -20,4 +20,4 @@ bounds = {
 
 def l(s,obj):
     o = string.Template(s).substitute(obj)
-    print o
+    print(o)

@@ -1,5 +1,5 @@
-import constants
-from Tkinter import *
+from constants import *
+from tkinter import *
 import random
 import string
 from PIL import Image, ImageTk
@@ -12,11 +12,11 @@ Square = load_source('Square', mypath+'/Classes/Square.py').Square
 Fish = load_source('Fish', mypath+'/sprites/Fish.py').Fish
 
 
-class Sprite(constants.correction):
+class Sprite(correction):
     def __init__(self,app, x=None, y=None):
-        h = constants.bounds["y"][1]
-        w = constants.bounds["x"][1]
-        g = constants.grid_size
+        h = bounds["y"][1]
+        w = bounds["x"][1]
+        g = grid_size
         cx = w/(2*g)
         cy = h/(2*g)
         img = Image.open("sprites/sm_tux.gif")
@@ -50,20 +50,20 @@ class Sprite(constants.correction):
         self.app = app
 
     def hit(self,damage):
-        print "Hit"
+        print("Hit")
         fish = self.app.inventory["fish"]["qty"]
         if fish >= damage:
             self.app.inventory["fish"]["qty"]-=damage
             self.app.update_inventory()
         else:
-            print "Oh No"
+            print("Oh No")
 
-class Monster(constants.correction):
+class Monster(correction):
     def __init__(self,app, x=None, y=None):
         # constants.l('Placing Monster',{})
-        h = constants.bounds["y"][1]
-        w = constants.bounds["x"][1]
-        g = constants.grid_size
+        h = bounds["y"][1]
+        w = bounds["x"][1]
+        g = grid_size
         cx = w/(2*g)+1
         cy = h/(2*g)
         img = Image.open("sprites/sm_monster.gif")
@@ -97,7 +97,7 @@ class Monster(constants.correction):
             self.type = "virus"
             self.placed = True
         else: 
-            print "Tries exceeded"
+            print("Tries exceeded")
             self.placed = False
     def destroy(self):
         self.app.screen.canvas.delete(self.sprite)
@@ -110,9 +110,9 @@ class Monster(constants.correction):
     #     print self.column
 
 def Trees(app):
-    h = constants.bounds["y"][1]
-    w = constants.bounds["x"][1]
-    g = constants.grid_size
+    h = bounds["y"][1]
+    w = bounds["x"][1]
+    g = grid_size
     img = Image.open("sprites/sm_tree.gif")
     img.thumbnail((g,g))
     app.t_sprite = ImageTk.PhotoImage(img)
@@ -127,9 +127,9 @@ def Trees(app):
                 s.add_feature("tree", app)
 
 def Rocks(app):
-    h = constants.bounds["y"][1]
-    w = constants.bounds["x"][1]
-    g = constants.grid_size
+    h = bounds["y"][1]
+    w = bounds["x"][1]
+    g = grid_size
     img = Image.open("sprites/sm_rock.gif")
     img.thumbnail((g,g))
     app.r_sprite = ImageTk.PhotoImage(img)
@@ -145,8 +145,8 @@ def Rocks(app):
                 # s.rock_sprite = app.screen.canvas.create_image(((s.column+0.5)*g)+5, ((s.row+0.5)*g)+5, image=app.r_sprite)                    
                 # s.has_rock=True
 
-class Screen(constants.correction):
-    def __init__(self,app, height=constants.bounds["y"][1], width=constants.bounds["x"][1], grid=constants.grid_size):
+class Screen(correction):
+    def __init__(self,app, height=bounds["y"][1], width=bounds["x"][1], grid=grid_size):
         h=height
         g=grid
         w=width
@@ -177,16 +177,16 @@ class Screen(constants.correction):
                 ny = i+y
                 if feature in debug_feature:
                     o = string.Template('Checking {x:$column, y:$row}').substitute({'column':nx, 'row': ny})
-                    print o
-                    print prop + ": " + str(self.grid[ny][nx][prop])
+                    print(o)
+                    print(prop + ": " + str(self.grid[ny][nx][prop]))
                 try:
                     if self.grid[ny][nx][prop] == True:
                         if feature in debug_feature:
-                            print "Found neighbor"
+                            print("Found neighbor")
                         return True
                 except IndexError:
                     if feature in debug_feature:
-                        print "Out of range"
+                        print("Out of range")
                     else:
                         pass
         return False

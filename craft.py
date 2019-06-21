@@ -1,7 +1,7 @@
-import constants
-import Tkinter as tk
+from constants import *
+import tkinter as tk
 
-class Craft(constants.correction):
+class Craft(correction):
     def create_window(self):
         self.app.counter += 1
         t = tk.Toplevel(self.app.master)

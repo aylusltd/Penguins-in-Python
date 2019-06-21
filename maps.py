@@ -1,10 +1,10 @@
-import tkFileDialog
+from tkinter import filedialog
 import json
 import sprites
 
 def load(app, filename=None):
     if filename is None:
-        filename=tkFileDialog.askopenfilename(initialdir = "~/Desktop",title = "Select file",filetypes = (("json files","*.json"),("all files","*.*")))
+        filename=filedialog.askopenfilename(initialdir = "~/Desktop",title = "Select file",filetypes = (("json files","*.json"),("all files","*.*")))
     with open(filename, 'rb') as myfile:
         r = myfile.read()
         myfile.close()
@@ -59,7 +59,7 @@ def load(app, filename=None):
 
 def save(app, filename=None):
     if filename is None:
-        filename=tkFileDialog.asksaveasfilename(initialdir = "~/Desktop",title = "Select file",filetypes = (("json files","*.json"),("all files","*.*")))
+        filename=filedialog.asksaveasfilename(initialdir = "~/Desktop",title = "Select file",filetypes = (("json files","*.json"),("all files","*.*")))
     file_rows=[]
     i=0
     for screen_row in app.screen.grid:
@@ -95,7 +95,7 @@ def save(app, filename=None):
     f["grid"] = file_rows
     f["sprites"] = sprites_to_write
     f["tux"] = tux
-    print f["tux"]
+    print(f["tux"])
     with open(filename, 'wb') as myfile:
         myfile.write(json.dumps(f))
         myfile.close()

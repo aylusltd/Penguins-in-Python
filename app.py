@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
-from Tkinter import *
+from tkinter import *
 from PIL import Image, ImageTk
-import constants
+from constants import *
 import sprites
 import string
 from keyhandlers import on_keypress
@@ -14,7 +14,7 @@ MAKE_FISH = True
 # MAKE_MONSTERS = False
 
 class Application(Frame):
-    g=constants.grid_size
+    g=grid_size
     selected_square=None
     spears = []
     def save(self):
@@ -69,8 +69,8 @@ class Application(Frame):
         self.selected_square=None
 
     def edit_square(self, event):
-        row = int(event.y/constants.grid_size)
-        column = int(event.x/constants.grid_size)
+        row = int(event.y/grid_size)
+        column = int(event.x/grid_size)
         # o = string.Template('Right Clicked {x:$column, y:$row}').substitute({'column':column, 'row': row})
         # print o
         ss = self.screen
@@ -159,7 +159,7 @@ class Application(Frame):
                             self.tux.hit(1)
                             not_moved=False
                         else:
-                            print "failure"
+                            print("failure")
                 elif d_x > 0:
                     if grid[monster.row][monster.column-1].passable:
                         if not grid[monster.row][monster.column-1].occupied:
@@ -173,8 +173,8 @@ class Application(Frame):
                             self.tux.hit(1)
                             not_moved=False
                         else:
-                            print "failure"
-        self.root.after(constants.INTERVAL * 25, self.monsters_move)
+                            print("failure")
+        self.root.after(INTERVAL * 25, self.monsters_move)
 
     def addSprites(self):
         global MAKE_MONSTERS
@@ -217,7 +217,7 @@ class Application(Frame):
             si[key]["l2"].grid(row=row, column=1, sticky="we")
             row+=1
         if si["fish"]["qty"] <= 0:
-            print "Dieded"
+            print("Dieded")
 
     def createWidgets(self):
         global root
@@ -262,7 +262,7 @@ class Application(Frame):
         self.pack()
         self.createWidgets()
         self.create_popups()
-        self.root.after(constants.INTERVAL * 25, self.monsters_move)
+        self.root.after(INTERVAL * 25, self.monsters_move)
         # master.after(1, lambda: master.focus_force())
 
         # self.animate()
@@ -286,4 +286,4 @@ app.mainloop()
 try: 
     root.destroy()
 except:
-    print "Couldn't destroy root. Maybe try a bigger drill?"
+    print("Couldn't destroy root. Maybe try a bigger drill?")

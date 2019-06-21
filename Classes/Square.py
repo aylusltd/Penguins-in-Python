@@ -1,12 +1,12 @@
-import constants
-from Tkinter import *
+from constants import *
+from tkinter import *
 import random
 import string
 from PIL import Image, ImageTk
 from os.path import isfile, join, realpath, abspath, dirname
 from imp import load_source
 
-class Square(constants.correction):
+class Square(correction):
     def debug_click(self, event):
         DEBUG_MODE = True
         row = int(event.y/constants.grid_size)
@@ -15,36 +15,36 @@ class Square(constants.correction):
         
         if DEBUG_MODE:
             o = string.Template('Clicked {x:$column, y:$row}').substitute({'column':column, 'row': row})
-            print o
-            print "Type: " + s.square_type
-            print "Passable: " +str(s.passable)
-            print "Occupied: " + str(s.occupied)
-            print "Has Tux: " + str(s.has_tux)
-            print "Has Wall: " + str(s.has_wall)
-            print "Has Fish: " + str(s.has_fish)
-            print str(self.sprites)
+            print(o)
+            print("Type: " + s.square_type)
+            print("Passable: " +str(s.passable))
+            print("Occupied: " + str(s.occupied))
+            print("Has Tux: " + str(s.has_tux))
+            print("Has Wall: " + str(s.has_wall))
+            print("Has Fish: " + str(s.has_fish))
+            print(str(self.sprites))
 
         action = self.app.action
         if action is not None:
-            print action
+            print(action)
             # def remove_feature(self, feature, app, make_passable=True):
             if action == "destroy wall":
             	s.remove_feature(feature="wall", app=self.app)
             elif action == "catch fish":
-            	print "in catch routine"
+            	print("in catch routine")
             	for fish in self.app.screen.fishes:
 	                if fish.row == s.row and fish.column == s.column:
 	                    fish.destroy()
 	                    del fish
 	                    self.app.inventory["fish"]["qty"]+=10
 	                    self.app.update_inventory()
-	                    print "caught fish"
+	                    print("caught fish")
 
             self.app.action = None
             # self.app.config(cursor = "arrow black black")
 
 
-    def __init__(self, row, column, canvas, app, g=constants.grid_size, square_type='grass'):
+    def __init__(self, row, column, canvas, app, g=grid_size, square_type='grass'):
         if canvas is not None:
             self.canvas = canvas
             if square_type == 'grass':
@@ -74,7 +74,7 @@ class Square(constants.correction):
         self.sprites={}
     
     def add_feature(self, feature, app, required_type="grass", passable=True):
-        g = constants.grid_size
+        g = grid_size
         img = Image.open("sprites/sm_"+feature+".gif")
         img.thumbnail((g,g))
         name = feature+"_sprite"
@@ -89,7 +89,7 @@ class Square(constants.correction):
         # print str(self)
     def remove_feature(self, feature, app, make_passable=True):
         # print "Remove Feature"
-        g = constants.grid_size
+        # g = constants.grid_size
         name = feature+"_sprite"
         # print name
         prop = "has_" + feature
