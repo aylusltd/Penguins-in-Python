@@ -1,4 +1,4 @@
-from constants import correction
+from constants import *
 from tkinter import *
 import random
 import string
@@ -9,9 +9,9 @@ class Spear(correction):
         int(d)
         self.pause = False
         self.app = app
-        h = constants.bounds["y"][1]
-        w = constants.bounds["x"][1]
-        g = constants.grid_size
+        h = bounds["y"][1]
+        w = bounds["x"][1]
+        g = grid_size
         cx = w/(2*g)
         cy = h/(2*g)-1
         if x is not None:
@@ -41,9 +41,9 @@ class Spear(correction):
     def move(self):
         if not self.valid:
             return None
-        h = constants.bounds["y"][1]
-        w = constants.bounds["x"][1]
-        g = constants.grid_size
+        h = bounds["y"][1]
+        w = bounds["x"][1]
+        g = grid_size
         max_row = int(h/g)-2
         max_column = int(w/g)-2
         if self.d == 0 and not self.pause:
@@ -85,7 +85,7 @@ class Spear(correction):
                 print(self.column)
             if c:
                 self.destroy()
-        self.app.root.after(constants.INTERVAL,self.move)
+        self.app.root.after(INTERVAL,self.move)
 
     # def __del__(self):
     #     print "deleting"

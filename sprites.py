@@ -17,8 +17,8 @@ class Sprite(correction):
         h = bounds["y"][1]
         w = bounds["x"][1]
         g = grid_size
-        cx = w/(2*g)
-        cy = h/(2*g)
+        cx = int(w/(2*g))
+        cy = int(h/(2*g))
         img = Image.open("sprites/sm_tux.gif")
         self.p_sprite = ImageTk.PhotoImage(img)
         self.row=cy
@@ -64,8 +64,8 @@ class Monster(correction):
         h = bounds["y"][1]
         w = bounds["x"][1]
         g = grid_size
-        cx = w/(2*g)+1
-        cy = h/(2*g)
+        cx = int(w/(2*g)+1)
+        cy = int(h/(2*g))
         img = Image.open("sprites/sm_monster.gif")
 
         self.m_sprite = ImageTk.PhotoImage(img)
@@ -152,10 +152,10 @@ class Screen(correction):
         w=width
         self.canvas=Canvas(app.frame, height=h+10, width=w+10, background="green")
         self.grid = []
-        for i in range(0,(h/g)):
+        for i in range(0,(int(h/g))):
             self.grid.append([])
             # print app.grid[i]
-            for j in range(0,(w/g)):
+            for j in range(0,(int(w/g))):
                 r = random.randint(0,12)
                 if r%11 == 0:
                     square_type = 'water'

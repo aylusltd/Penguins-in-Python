@@ -12,8 +12,8 @@ class Fish(correction):
         h = bounds["y"][1]
         w = bounds["x"][1]
         g = grid_size
-        cx = w/(2*g)+1
-        cy = h/(2*g)
+        cx = int(w/(2*g)+1)
+        cy = int(h/(2*g))
         img = Image.open("sprites/sm_fish.gif")
 
         self.f_sprite = ImageTk.PhotoImage(img)
@@ -60,7 +60,7 @@ class Fish(correction):
         self.app.screen.fishes.remove(self)
     def move(self, app):
         # self.moved=True
-        g = constants.grid_size
+        g = grid_size
         not_moved = True
         d_y = self.row - app.tux.row
         d_x = self.column - app.tux.column

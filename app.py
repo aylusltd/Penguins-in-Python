@@ -100,7 +100,7 @@ class Application(Frame):
         on_keypress(self, event)
 
     def monsters_move(self):
-        g = constants.grid_size
+        g = grid_size
         # c=0
         for fish in self.screen.fishes:
             fish.moved = False
