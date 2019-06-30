@@ -1,17 +1,17 @@
-import constants
-from Tkinter import *
+from constants import *
+from tkinter import *
 import random
 import string
 from PIL import Image, ImageTk
 
-class Spear(constants.correction):
+class Spear(correction):
     def __init__(self,app, d=0, x=None, y=None):
         int(d)
         self.pause = False
         self.app = app
-        h = constants.bounds["y"][1]
-        w = constants.bounds["x"][1]
-        g = constants.grid_size
+        h = bounds["y"][1]
+        w = bounds["x"][1]
+        g = grid_size
         cx = w/(2*g)
         cy = h/(2*g)-1
         if x is not None:
@@ -31,7 +31,7 @@ class Spear(constants.correction):
         self.move()
 
     def destroy(self):
-        print "Destroying"
+        print("Destroying")
         # print self.app.spears.index(self)
         self.app.spears.remove(self)
         self.valid = False
@@ -41,9 +41,9 @@ class Spear(constants.correction):
     def move(self):
         if not self.valid:
             return None
-        h = constants.bounds["y"][1]
-        w = constants.bounds["x"][1]
-        g = constants.grid_size
+        h = bounds["y"][1]
+        w = bounds["x"][1]
+        g = grid_size
         max_row = int(h/g)-2
         max_column = int(w/g)-2
         if self.d == 0 and not self.pause:
@@ -79,13 +79,13 @@ class Spear(constants.correction):
             try:
                 c = self.detect_collision()
             except:
-                print "row"
-                print self.row
-                print "column"
-                print self.column
+                print("row")
+                print(self.row)
+                print("column")
+                print(self.column)
             if c:
                 self.destroy()
-        self.app.root.after(constants.INTERVAL,self.move)
+        self.app.root.after(INTERVAL,self.move)
 
     # def __del__(self):
     #     print "deleting"
@@ -94,16 +94,16 @@ class Spear(constants.correction):
 
     def detect_collision(self):
         self.pause = True
-        print "Row"
-        print self.row
-        print "column"
-        print self.column
+        print("Row")
+        print(self.row)
+        print("column")
+        print(self.column)
         if self.app.screen.grid[self.row][self.column].occupied:
             for monster in self.app.screen.monsters:
                 if monster.row == self.row and monster.column == self.column:
                     monster.destroy()
                     del monster
-                    print "monster"
+                    print("monster")
             # print "phantom"
             return True
         # print "empty"

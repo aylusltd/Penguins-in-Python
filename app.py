@@ -1,13 +1,16 @@
 #!/usr/local/bin/python
-from Tkinter import *
-from PIL import Image, ImageTk
-import constants
-import sprites
 import string
-from keyhandlers import on_keypress
+
+from PIL import Image, ImageTk
+from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu
+
 import craft
-from starting_inventory import starting_inventory
+import sprites
 import maps
+
+import constants
+from keyhandlers import on_keypress
+from starting_inventory import starting_inventory
 
 MAKE_MONSTERS = True
 MAKE_FISH = True
@@ -69,8 +72,9 @@ class Application(Frame):
         self.selected_square=None
 
     def edit_square(self, event):
-        row = int(event.y/constants.grid_size)
-        column = int(event.x/constants.grid_size)
+        grid_size = constants.grid_size
+        row = int(event.y/grid_size)
+        column = int(event.x/grid_size)
         # o = string.Template('Right Clicked {x:$column, y:$row}').substitute({'column':column, 'row': row})
         # print o
         ss = self.screen
@@ -159,7 +163,7 @@ class Application(Frame):
                             self.tux.hit(1)
                             not_moved=False
                         else:
-                            print "failure"
+                            print("failure")
                 elif d_x > 0:
                     if grid[monster.row][monster.column-1].passable:
                         if not grid[monster.row][monster.column-1].occupied:
@@ -173,7 +177,7 @@ class Application(Frame):
                             self.tux.hit(1)
                             not_moved=False
                         else:
-                            print "failure"
+                            print("failure")
         self.root.after(constants.INTERVAL * 25, self.monsters_move)
 
     def addSprites(self):
@@ -217,7 +221,7 @@ class Application(Frame):
             si[key]["l2"].grid(row=row, column=1, sticky="we")
             row+=1
         if si["fish"]["qty"] <= 0:
-            print "Dieded"
+            print("Dieded")
 
     def createWidgets(self):
         global root
@@ -286,4 +290,4 @@ app.mainloop()
 try: 
     root.destroy()
 except:
-    print "Couldn't destroy root. Maybe try a bigger drill?"
+    print("Couldn't destroy root. Maybe try a bigger drill?")

@@ -1,10 +1,12 @@
-import constants
-from Tkinter import *
 import random
 import string
-from PIL import Image, ImageTk
 from os.path import isfile, join, realpath, abspath, dirname
 from imp import load_source
+
+from PIL import Image, ImageTk
+from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu, Canvas
+
+import constants
 
 mypath = dirname(__file__)
 Spear = load_source('Spear', mypath+'/sprites/spear.py').Spear
@@ -17,8 +19,8 @@ class Sprite(constants.correction):
         h = constants.bounds["y"][1]
         w = constants.bounds["x"][1]
         g = constants.grid_size
-        cx = w/(2*g)
-        cy = h/(2*g)
+        cx = int(w/(2*g))
+        cy = int(h/(2*g))
         img = Image.open("sprites/sm_tux.gif")
         self.p_sprite = ImageTk.PhotoImage(img)
         self.row=cy
@@ -50,13 +52,13 @@ class Sprite(constants.correction):
         self.app = app
 
     def hit(self,damage):
-        print "Hit"
+        print("Hit")
         fish = self.app.inventory["fish"]["qty"]
         if fish >= damage:
             self.app.inventory["fish"]["qty"]-=damage
             self.app.update_inventory()
         else:
-            print "Oh No"
+            print("Oh No")
 
 class Monster(constants.correction):
     def __init__(self,app, x=None, y=None):
@@ -64,8 +66,9 @@ class Monster(constants.correction):
         h = constants.bounds["y"][1]
         w = constants.bounds["x"][1]
         g = constants.grid_size
-        cx = w/(2*g)+random.randint(1,5)
-        cy = h/(2*g)+random.randint(-4,4)
+
+        cx = int(w/(2*g))+random.randint(1,5)
+        cy = int(h/(2*g))+random.randint(-4,4)
         img = Image.open("sprites/sm_monster.gif")
 
         self.m_sprite = ImageTk.PhotoImage(img)
@@ -97,7 +100,7 @@ class Monster(constants.correction):
             self.type = "virus"
             self.placed = True
         else: 
-            print "Tries exceeded"
+            print("Tries exceeded")
             self.placed = False
     def destroy(self):
         self.app.screen.canvas.delete(self.sprite)
@@ -152,10 +155,10 @@ class Screen(constants.correction):
         w=width
         self.canvas=Canvas(app.frame, height=h+10, width=w+10, background="green")
         self.grid = []
-        for i in range(0,(h/g)):
+        for i in range(0,(int(h/g))):
             self.grid.append([])
             # print app.grid[i]
-            for j in range(0,(w/g)):
+            for j in range(0,(int(w/g))):
                 r = random.randint(0,12)
                 if r%11 == 0:
                     square_type = 'water'
@@ -177,16 +180,16 @@ class Screen(constants.correction):
                 ny = i+y
                 if feature in debug_feature:
                     o = string.Template('Checking {x:$column, y:$row}').substitute({'column':nx, 'row': ny})
-                    print o
-                    print prop + ": " + str(self.grid[ny][nx][prop])
+                    print(o)
+                    print(prop + ": " + str(self.grid[ny][nx][prop]))
                 try:
                     if self.grid[ny][nx][prop] == True:
                         if feature in debug_feature:
-                            print "Found neighbor"
+                            print("Found neighbor")
                         return True
                 except IndexError:
                     if feature in debug_feature:
-                        print "Out of range"
+                        print("Out of range")
                     else:
                         pass
         return False

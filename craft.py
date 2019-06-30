@@ -1,5 +1,6 @@
+import tkinter as tk
+
 import constants
-import Tkinter as tk
 
 class Craft(constants.correction):
     def create_window(self):

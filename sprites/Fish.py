@@ -1,19 +1,19 @@
-import constants
-from Tkinter import *
+from constants import *
+from tkinter import *
 import random
 import string
 from PIL import Image, ImageTk
 # from os.path import isfile, join, realpath, abspath, dirname
 # from imp import load_source
 
-class Fish(constants.correction):
+class Fish(correction):
     def __init__(self,app, x=None, y=None):
         # constants.l('Placing self',{})
-        h = constants.bounds["y"][1]
-        w = constants.bounds["x"][1]
-        g = constants.grid_size
-        cx = w/(2*g)+1
-        cy = h/(2*g)
+        h = bounds["y"][1]
+        w = bounds["x"][1]
+        g = grid_size
+        cx = int(w/(2*g)+1)
+        cy = int(h/(2*g))
         img = Image.open("sprites/sm_fish.gif")
 
         self.f_sprite = ImageTk.PhotoImage(img)
@@ -50,7 +50,7 @@ class Fish(constants.correction):
             self.placed = True
             self.moved = False
         else: 
-            print "Tries exceeded"
+            print("Tries exceeded")
             self.placed = False
     def destroy(self):
         self.app.screen.canvas.delete(self.sprite)
@@ -60,7 +60,7 @@ class Fish(constants.correction):
         self.app.screen.fishes.remove(self)
     def move(self, app):
         # self.moved=True
-        g = constants.grid_size
+        g = grid_size
         not_moved = True
         d_y = self.row - app.tux.row
         d_x = self.column - app.tux.column
