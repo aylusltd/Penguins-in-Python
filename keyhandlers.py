@@ -1,12 +1,14 @@
 import constants, sprites
 listeners = []
-def key_listener(key = None, keycode = None):
+def key_listener(key = None, keycode = None, keysym = None):
     def faux_wrapper(l):
         def wrapper(*args, **kwargs):
             s = args[0]
             e = args[1]
             if ((keycode is None or keycode == e.keycode) and 
-                (key is None or key == e.char)):
+                (key is None or key == e.char) and
+                (keysym is None or keysym==e.keysym)
+                ):
                 return l(*args, **kwargs)
             else:
                 return None
@@ -179,7 +181,8 @@ def consume_ingredients(ingredients, inventory):
         inventory[ingredient]["qty"]-=1
 
 
-@key_listener(keycode=8320768)
+# @key_listener(keycode=8320768)
+@key_listener(keysym="Up")
 @move_tux
 def move_up(s,e):
     g=s.g
@@ -188,7 +191,8 @@ def move_up(s,e):
                 s.screen.canvas.move(s.tux.sprite,0,-g)
                 s.tux.row-=1
 
-@key_listener(keycode=8255233)
+# @key_listener(keycode=8255233)
+@key_listener(keysym="Down")
 @move_tux
 def move_down(s,e):
     g=s.g
@@ -197,7 +201,8 @@ def move_down(s,e):
             s.screen.canvas.move(s.tux.sprite,0,g)
             s.tux.row+=1
 
-@key_listener(keycode=8124162)
+# @key_listener(keycode=8124162)
+@key_listener(keysym="Left")
 @move_tux
 def move_left(s,e):
     g=s.g
@@ -206,7 +211,8 @@ def move_left(s,e):
             s.screen.canvas.move(s.tux.sprite,-g,0)
             s.tux.column-=1
 
-@key_listener(keycode=8189699)
+# @key_listener(keycode=8189699)
+@key_listener(keysym="Right")
 @move_tux
 def move_right(s,e):
     g=s.g

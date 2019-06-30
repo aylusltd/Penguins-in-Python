@@ -42,19 +42,30 @@ def load(app, filename=None):
             y=tux["row"]
         )
     app.screen.monsters=[]
+    app.screen.fishes = []
     m = app.screen.monsters
+    f = app.screen.fishes
     for sprite in saved_sprites:
         # def __init__(self, app, x=None, y=None)
         x = sprite["column"]
         y = sprite["row"]
-        m.append(sprites.Monster(
-            app = app, 
-            x = x,
-            y = y
-        ))
-        l = len(m) - 1
-        m[l].ind = l
-        app.screen.grid[y][x].occupied=True
+        if sprite["type"] == "virus":
+            m.append(sprites.Monster(
+                app = app, 
+                x = x,
+                y = y
+            ))
+            l = len(m) - 1
+            m[l].ind = l
+            app.screen.grid[y][x].occupied=True
+        elif sprite["type"] == "fish":
+            f.append(sprites.Fish(
+                app = app, 
+                x = x,
+                y = y
+            ))
+            l=len(f)-1
+            f[l].ind = l
 
 
 def save(app, filename=None):
@@ -84,6 +95,12 @@ def save(app, filename=None):
         m["column"] = monster.column
         m["type"] = monster.type
         sprites_to_write.append(m)
+    for fish in app.screen.fishes:
+        f={}
+        f["row"] = fish.row
+        f["column"] = fish.column
+        f["type"] = "fish"
+        sprites_to_write.append(f)
     tux = {}
     tux["row"] = app.tux.row
     tux["column"] = app.tux.column
@@ -96,6 +113,7 @@ def save(app, filename=None):
     f["sprites"] = sprites_to_write
     f["tux"] = tux
     print(f["tux"])
-    with open(filename, 'wb') as myfile:
-        myfile.write(json.dumps(f))
+    with open(filename, 'w') as myfile:
+        j = json.dumps(f)
+        myfile.write(j)
         myfile.close()
