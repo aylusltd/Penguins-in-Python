@@ -22,10 +22,9 @@ class Application(Frame):
     spears = []
     def save(self):
         maps.save(app=self)
-        pass
+
     def load(self):
         maps.load(app=self)
-        pass
 
     def make_monster(self):
         s = self.selected_square
@@ -180,21 +179,21 @@ class Application(Frame):
                             print("failure")
         self.root.after(constants.INTERVAL * 25, self.monsters_move)
 
-    def addSprites(self):
+    def add_sprites(self, tux_x=None, tux_y=None, monsters=[], fishes=[]):
         global MAKE_MONSTERS
-        self.tux = sprites.Sprite(self)
-        self.screen.monsters=[]
-        self.screen.fishes=[]
+        self.tux = sprites.Sprite(self,x=tux_x, y=tux_y)
+        self.screen.monsters=monsters
+        self.screen.fishes=fishes
         m = self.screen.monsters
         f = self.screen.fishes
-        if MAKE_MONSTERS:
+        if MAKE_MONSTERS and len(m) == 0:
             for i in range(0,10):
                 monster = sprites.Monster(self)
                 if monster.placed: 
                     m.append(monster)
                     l = len(m) - 1
                     m[l].ind = l
-        if MAKE_FISH:
+        if MAKE_FISH and len(f) == 0:
             for i in range(0,10):
                 fish = sprites.Fish(self)
                 if fish.placed: 
@@ -223,14 +222,14 @@ class Application(Frame):
         if si["fish"]["qty"] <= 0:
             print("Dieded")
 
-    def createWidgets(self):
+    def create_widgets(self):
         global root
         self.frame = Frame(root)
         self.frame2 = Frame(root)
         self.frame.pack(fill=BOTH, expand=1, side="left")
 
         self.screen = sprites.Screen(self)
-        self.addSprites()
+        self.add_sprites()
         self.screen.canvas.pack(fill=BOTH, expand=1)
         self.display_inventory()
         self.frame2.pack(fill=BOTH, expand=1, side="right")
@@ -264,7 +263,7 @@ class Application(Frame):
         Frame.__init__(self, master)
         # self.keypress = on_keypress
         self.pack()
-        self.createWidgets()
+        self.create_widgets()
         self.create_popups()
         self.root.after(constants.INTERVAL * 25, self.monsters_move)
         # master.after(1, lambda: master.focus_force())

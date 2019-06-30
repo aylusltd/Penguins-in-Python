@@ -1,14 +1,43 @@
 from tkinter import filedialog
 import json
 import sprites
-
-def load(app, filename=None):
-    if filename is None:
+def save_world(app, filename=None):
+    if filename is None and in_memory is False:
+        filename=filedialog.asksaveasfilename(initialdir = "~/Desktop",title = "Select file",filetypes = (("json files","*.json"),("all files","*.*")))
+    f=app.screen.grids
+    my_map = {}
+    my_map["grids"] = f
+    my_map["current_screen"] = self.current_map
+    with open(filename, 'w') as myfile:
+            j = json.dumps(my_map)
+            myfile.write(j)
+            myfile.close()
+            
+def load_world(app, filename=None):
+    if filename is None and from_memory is None:
         filename=filedialog.askopenfilename(initialdir = "~/Desktop",title = "Select file",filetypes = (("json files","*.json"),("all files","*.*")))
     with open(filename, 'rb') as myfile:
         r = myfile.read()
         myfile.close()
-    r = json.loads(r)
+        r = json.loads(r)
+    app.screen.grids = r["grids"]
+    app.screen.current_map=r["current_screen"]
+    y=app.screen.current_map["y"]
+    x=app.screen.current_map["x"]
+
+    g=app.screen.grids[y][x]
+    load(app, from_memory=g)
+
+def load(app, filename=None, from_memory=None):
+    if filename is None and from_memory is None:
+        filename=filedialog.askopenfilename(initialdir = "~/Desktop",title = "Select file",filetypes = (("json files","*.json"),("all files","*.*")))
+    if from_memory is None:
+        with open(filename, 'rb') as myfile:
+            r = myfile.read()
+            myfile.close()
+        r = json.loads(r)
+    else:
+        r=from_memory
     grid = r["grid"]
     saved_sprites = r["sprites"]
     tux = r["tux"]
@@ -68,8 +97,8 @@ def load(app, filename=None):
             f[l].ind = l
 
 
-def save(app, filename=None):
-    if filename is None:
+def save(app, filename=None, in_memory=False):
+    if filename is None and in_memory is False:
         filename=filedialog.asksaveasfilename(initialdir = "~/Desktop",title = "Select file",filetypes = (("json files","*.json"),("all files","*.*")))
     file_rows=[]
     i=0
@@ -113,7 +142,10 @@ def save(app, filename=None):
     f["sprites"] = sprites_to_write
     f["tux"] = tux
     print(f["tux"])
-    with open(filename, 'w') as myfile:
-        j = json.dumps(f)
-        myfile.write(j)
-        myfile.close()
+    if in_memory is False:
+        with open(filename, 'w') as myfile:
+            j = json.dumps(f)
+            myfile.write(j)
+            myfile.close()
+    else:
+        return f

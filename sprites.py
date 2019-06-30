@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu, Canvas
 
 import constants
+import maps
 
 mypath = dirname(__file__)
 Spear = load_source('Spear', mypath+'/sprites/spear.py').Spear
@@ -51,7 +52,7 @@ class Sprite(constants.correction):
         app.screen.grid[cy][cx].has_tux=True
         self.app = app
 
-    def hit(self,damage):
+    def hit(self, damage):
         print("Hit")
         fish = self.app.inventory["fish"]["qty"]
         if fish >= damage:
@@ -145,20 +146,29 @@ def Rocks(app):
             neighbor = app.screen.neighbor_has(feature="rock", i=s.row,j=s.column)
             if ((start_cluster or (continue_cluster and neighbor)) and s.square_type == "grass" and not s.occupied):
                 s.add_feature("rock", app)
-                # s.rock_sprite = app.screen.canvas.create_image(((s.column+0.5)*g)+5, ((s.row+0.5)*g)+5, image=app.r_sprite)                    
-                # s.has_rock=True
 
 class Screen(constants.correction):
     def __init__(self,app, height=constants.bounds["y"][1], width=constants.bounds["x"][1], grid=constants.grid_size):
-        h=height
-        g=grid
-        w=width
-        self.canvas=Canvas(app.frame, height=h+10, width=w+10, background="green")
+        self.h=height
+        self.g=grid
+        self.w=width
+
+        self.canvas=Canvas(app.frame, height=self.h+10, width=self.w+10, background="green")
         self.grid = []
-        for i in range(0,(int(h/g))):
+        self.grids = []
+        self.app = app
+        for i in range(0,20):
+            self.grids.append([])
+            for j in range(0,20):
+                self.grids[i].append({})
+        self.current_map = {}
+        self.current_map["x"] = random.randint(0,19)
+        self.current_map["y"] = random.randint(0,19)
+
+        for i in range(0,(int(self.h/self.g))):
             self.grid.append([])
             # print app.grid[i]
-            for j in range(0,(int(w/g))):
+            for j in range(0,(int(self.w/self.g))):
                 r = random.randint(0,12)
                 if r%11 == 0:
                     square_type = 'water'
@@ -168,6 +178,10 @@ class Screen(constants.correction):
                     square_type = 'grass'
                 s = Square(i,j, self.canvas, app=app, square_type=square_type)
                 self.grid[i].append(s)
+        
+        y = self.current_map["y"]
+        x = self.current_map["x"]
+        self.grids[y][x]["grid"] = self.grid
     
     def neighbor_has(self, feature, i,j):
         prop = "has_"+feature
@@ -202,11 +216,74 @@ class Screen(constants.correction):
                 except IndexError:
                     pass
 
-    def save(self):
-        arr = []
-        for row in self.grid:
-            save_row = []
-            for square in row:
-                save_row.append()
-            arr.append(save_row)
+    def generate_screen(self, from_dir):
+        self.canvas.delete("all")
+        g = self.grid.copy()
+        # delete(self.grid)
 
+        h = len(g)
+        w = len(g[0])
+        # m = self.monsters.copy()
+        # f = self.fishes.copy()
+        new_grid=[]
+        for i in range(0,h):
+            new_grid.append([])
+            for j in range(0,w):
+                if from_dir == "Down" and i==0:
+                    source_square=g[-1][j]
+                    square_type=source_square.square_type
+                elif from_dir == "Up" and i==h-1:
+                    source_square=g[0][j]
+                    square_type=source_square.square_type
+                elif from_dir == "Left" and j==w-1:
+                    source_square=g[i][0]
+                    square_type=source_square.square_type
+                elif from_dir == "Right" and j==0:
+                    source_square=g[i][-1]
+                    square_type=source_square.square_type
+                else:
+                    r = random.randint(0,12)
+                    if r%11 == 0:
+                        square_type = 'water'
+                    elif r%4 ==0 and self.neighbor_water(i,j):
+                        square_type = 'water'
+                    else:
+                        square_type = 'grass'
+                if self.current_map["x"] == 0 and j==0:
+                    square_type = 'water'
+                if self.current_map["y"] == 0 and i==0:
+                    square_type = 'water'
+
+                s = Square(i,j, self.canvas, app=self.app, square_type=square_type)
+                new_grid[i].append(s)
+
+        return new_grid
+    def make_next_screen(self, direction, tux_x, tux_y):
+        print(self.current_map)
+        x = self.current_map["x"]
+        y = self.current_map["y"]
+
+        self.grids[y][x]=maps.save(app=self.app, in_memory=True)
+
+        if direction == "Up":
+            y -=1
+        elif direction == "Down":
+            y+=1
+        elif direction == "Right":
+            x+=1
+        elif direction == "Left":
+            x-=1
+        
+        self.current_map["y"] = y
+        self.current_map["x"] = x
+
+        m=self.grids[y][x]
+
+        if "grid" in m:
+            maps.load(app=self.app, from_memory=m)
+        else:
+            new_grid = self.generate_screen(direction)
+            self.grid = new_grid.copy()
+            self.grids[y][x]["grid"] = new_grid.copy()
+            # delete(new_grid)
+            self.app.add_sprites(tux_x=tux_x,tux_y=tux_y)

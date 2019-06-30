@@ -186,10 +186,14 @@ def consume_ingredients(ingredients, inventory):
 @move_tux
 def move_up(s,e):
     g=s.g
+    h=len(s.screen.grid)
+    w=len(s.screen.grid[0])
     if s.tux.row > 0:
             if s.screen.grid[s.tux.row-1][s.tux.column].passable:
                 s.screen.canvas.move(s.tux.sprite,0,-g)
                 s.tux.row-=1
+    else:
+        s.screen.make_next_screen(direction="Up", tux_x=s.tux.column, tux_y=h-1)
 
 # @key_listener(keycode=8255233)
 @key_listener(keysym="Down")
@@ -200,6 +204,8 @@ def move_down(s,e):
         if s.screen.grid[s.tux.row+1][s.tux.column].passable:
             s.screen.canvas.move(s.tux.sprite,0,g)
             s.tux.row+=1
+    else:
+        s.screen.make_next_screen(direction="Down", tux_x=s.tux.column, tux_y=0)
 
 # @key_listener(keycode=8124162)
 @key_listener(keysym="Left")
@@ -210,6 +216,8 @@ def move_left(s,e):
         if s.screen.grid[s.tux.row][s.tux.column-1].passable:
             s.screen.canvas.move(s.tux.sprite,-g,0)
             s.tux.column-=1
+    else:
+        s.screen.make_next_screen(direction="Left", tux_x=s.max_column, tux_y=s.tux.row)
 
 # @key_listener(keycode=8189699)
 @key_listener(keysym="Right")
@@ -220,6 +228,8 @@ def move_right(s,e):
         if s.screen.grid[s.tux.row][s.tux.column+1].passable:
             s.screen.canvas.move(s.tux.sprite,g,0)
             s.tux.column+=1
+    else:
+        s.screen.make_next_screen(direction="Right", tux_x=0, tux_y=s.tux.row)
 
 def on_keypress(s, event):
     h = constants.bounds["y"][1]
