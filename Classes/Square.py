@@ -1,12 +1,13 @@
-from constants import *
-from tkinter import *
 import random
 import string
-from PIL import Image, ImageTk
 from os.path import isfile, join, realpath, abspath, dirname
 from imp import load_source
 
-class Square(correction):
+from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu
+from PIL import Image, ImageTk
+
+import constants
+class Square(constants.correction):
     def debug_click(self, event):
         DEBUG_MODE = True
         row = int(event.y/constants.grid_size)
@@ -44,7 +45,7 @@ class Square(correction):
             # self.app.config(cursor = "arrow black black")
 
 
-    def __init__(self, row, column, canvas, app, g=grid_size, square_type='grass'):
+    def __init__(self, row, column, canvas, app, g=constants.grid_size, square_type='grass'):
         if canvas is not None:
             self.canvas = canvas
             if square_type == 'grass':
@@ -74,7 +75,7 @@ class Square(correction):
         self.sprites={}
     
     def add_feature(self, feature, app, required_type="grass", passable=True):
-        g = grid_size
+        g = constants.grid_size
         img = Image.open("sprites/sm_"+feature+".gif")
         img.thumbnail((g,g))
         name = feature+"_sprite"

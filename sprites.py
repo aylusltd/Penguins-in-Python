@@ -1,10 +1,12 @@
-from constants import *
-from tkinter import *
 import random
 import string
-from PIL import Image, ImageTk
 from os.path import isfile, join, realpath, abspath, dirname
 from imp import load_source
+
+from PIL import Image, ImageTk
+from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu, Canvas
+
+import constants
 
 mypath = dirname(__file__)
 Spear = load_source('Spear', mypath+'/sprites/spear.py').Spear
@@ -12,11 +14,11 @@ Square = load_source('Square', mypath+'/Classes/Square.py').Square
 Fish = load_source('Fish', mypath+'/sprites/Fish.py').Fish
 
 
-class Sprite(correction):
+class Sprite(constants.correction):
     def __init__(self,app, x=None, y=None):
-        h = bounds["y"][1]
-        w = bounds["x"][1]
-        g = grid_size
+        h = constants.bounds["y"][1]
+        w = constants.bounds["x"][1]
+        g = constants.grid_size
         cx = int(w/(2*g))
         cy = int(h/(2*g))
         img = Image.open("sprites/sm_tux.gif")
@@ -58,12 +60,12 @@ class Sprite(correction):
         else:
             print("Oh No")
 
-class Monster(correction):
+class Monster(constants.correction):
     def __init__(self,app, x=None, y=None):
         # constants.l('Placing Monster',{})
-        h = bounds["y"][1]
-        w = bounds["x"][1]
-        g = grid_size
+        h = constants.bounds["y"][1]
+        w = constants.bounds["x"][1]
+        g = constants.grid_size
         cx = int(w/(2*g)+1)
         cy = int(h/(2*g))
         img = Image.open("sprites/sm_monster.gif")
@@ -110,9 +112,9 @@ class Monster(correction):
     #     print self.column
 
 def Trees(app):
-    h = bounds["y"][1]
-    w = bounds["x"][1]
-    g = grid_size
+    h = constants.bounds["y"][1]
+    w = constants.bounds["x"][1]
+    g = constants.grid_size
     img = Image.open("sprites/sm_tree.gif")
     img.thumbnail((g,g))
     app.t_sprite = ImageTk.PhotoImage(img)
@@ -127,9 +129,9 @@ def Trees(app):
                 s.add_feature("tree", app)
 
 def Rocks(app):
-    h = bounds["y"][1]
-    w = bounds["x"][1]
-    g = grid_size
+    h = constants.bounds["y"][1]
+    w = constants.bounds["x"][1]
+    g = constants.grid_size
     img = Image.open("sprites/sm_rock.gif")
     img.thumbnail((g,g))
     app.r_sprite = ImageTk.PhotoImage(img)
@@ -145,8 +147,8 @@ def Rocks(app):
                 # s.rock_sprite = app.screen.canvas.create_image(((s.column+0.5)*g)+5, ((s.row+0.5)*g)+5, image=app.r_sprite)                    
                 # s.has_rock=True
 
-class Screen(correction):
-    def __init__(self,app, height=bounds["y"][1], width=bounds["x"][1], grid=grid_size):
+class Screen(constants.correction):
+    def __init__(self,app, height=constants.bounds["y"][1], width=constants.bounds["x"][1], grid=constants.grid_size):
         h=height
         g=grid
         w=width

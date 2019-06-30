@@ -1,20 +1,23 @@
 #!/usr/local/bin/python
-from tkinter import *
-from PIL import Image, ImageTk
-from constants import *
-import sprites
 import string
-from keyhandlers import on_keypress
+
+from PIL import Image, ImageTk
+from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu
+
 import craft
-from starting_inventory import starting_inventory
+import sprites
 import maps
+
+import constants
+from keyhandlers import on_keypress
+from starting_inventory import starting_inventory
 
 MAKE_MONSTERS = True
 MAKE_FISH = True
 # MAKE_MONSTERS = False
 
 class Application(Frame):
-    g=grid_size
+    g=constants.grid_size
     selected_square=None
     spears = []
     def save(self):
@@ -69,6 +72,7 @@ class Application(Frame):
         self.selected_square=None
 
     def edit_square(self, event):
+        grid_size = constants.grid_size
         row = int(event.y/grid_size)
         column = int(event.x/grid_size)
         # o = string.Template('Right Clicked {x:$column, y:$row}').substitute({'column':column, 'row': row})
@@ -100,7 +104,7 @@ class Application(Frame):
         on_keypress(self, event)
 
     def monsters_move(self):
-        g = grid_size
+        g = constants.grid_size
         # c=0
         for fish in self.screen.fishes:
             fish.moved = False
@@ -174,7 +178,7 @@ class Application(Frame):
                             not_moved=False
                         else:
                             print("failure")
-        self.root.after(INTERVAL * 25, self.monsters_move)
+        self.root.after(constants.INTERVAL * 25, self.monsters_move)
 
     def addSprites(self):
         global MAKE_MONSTERS
@@ -262,7 +266,7 @@ class Application(Frame):
         self.pack()
         self.createWidgets()
         self.create_popups()
-        self.root.after(INTERVAL * 25, self.monsters_move)
+        self.root.after(constants.INTERVAL * 25, self.monsters_move)
         # master.after(1, lambda: master.focus_force())
 
         # self.animate()
