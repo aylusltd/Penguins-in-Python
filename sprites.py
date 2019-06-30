@@ -64,8 +64,8 @@ class Monster(constants.correction):
         h = constants.bounds["y"][1]
         w = constants.bounds["x"][1]
         g = constants.grid_size
-        cx = w/(2*g)+1
-        cy = h/(2*g)
+        cx = w/(2*g)+random.randint(1,5)
+        cy = h/(2*g)+random.randint(-4,4)
         img = Image.open("sprites/sm_monster.gif")
 
         self.m_sprite = ImageTk.PhotoImage(img)

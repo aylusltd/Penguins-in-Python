@@ -25,10 +25,10 @@ class Fish(constants.correction):
             while (s.square_type is not "water" or s.occupied is True) and (tries < MAX_TRIES):
                 # constants.l('Moving from {x:$x, y:$y}', {'x':cx,'y':cy})
                 if cx<(w/g)-2:
-                    cx+=random.randint(0,2)
+                    cx+=random.randint(-6,5)
                 # else:
                     # cx=original_cx
-                    cy+=random.randint(-2,2)
+                    cy+=random.randint(-4,4)
                 tries+=1
                 try:
                     s=app.screen.grid[cy][cx]
