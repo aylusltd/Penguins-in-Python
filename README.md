@@ -35,10 +35,18 @@ Should work on Mac, Windows, or Linux. Occassionally tested on Mac and Ubuntu. N
 ## Setup
 I run in a virtual environment, and don't have a packaged binary yet, so good luck. J/k it's actually pretty easy:
 
-1. Clone the repo (`git clone git@github.com:aylusltd/Penguins-in-Python.git`)
-2. `cd Penguins-in-Python`
-3. Install VirtualEnv
-4. Create VirtualEnv
+From your terminal:
+1. Clone the repo 
+`git clone git@github.com:aylusltd/Penguins-in-Python.git`
+2. Navigate into the folder
+`cd Penguins-in-Python`
+3. Install VirtualEnv 
+Instructions [here](https://virtualenv.pypa.io/en/latest/)
+4. Create VirtualEnv 
+`python3 -m virtualenv env`
 5. Activate VirtualEnv
-6. `pip install -r requirements.txt`
-7. `python app.py`
+`source env/bin/activate`
+6. Install dependencies
+`pip install -r requirements.txt`
+7. Launch game
+`python app.py`
