@@ -1,43 +1,72 @@
 from tkinter import filedialog
 import json
 import sprites
-def save_world(app, filename=None):
+def save_world(app, filename=None, in_memory=False):
+    prev_state = app.pause
+    app.pause=True
     if filename is None and in_memory is False:
         filename=filedialog.asksaveasfilename(initialdir = "~/Desktop",title = "Select file",filetypes = (("json files","*.json"),("all files","*.*")))
-    f=app.screen.grids
-    my_map = {}
-    my_map["grids"] = f
-    my_map["current_screen"] = self.current_map
-    with open(filename, 'w') as myfile:
-            j = json.dumps(my_map)
-            myfile.write(j)
-            myfile.close()
-            
-def load_world(app, filename=None):
+    if '.json' in filename:
+        print("filename")
+        print(filename)
+        x=app.screen.current_map["x"]
+        y=app.screen.current_map["y"]
+        app.screen.grids[y][x] = save(app=app, in_memory=True)
+
+        f=app.screen.grids
+        my_map = {}
+        my_map["grids"] = f
+        my_map["current_screen"] = app.screen.current_map
+        # my_map["current_inventory"] = app.inventory
+        inventory = {}
+        for key in app.inventory:
+            inventory[key] = {}
+            inventory[key]["display"] = app.inventory[key]["display"]
+            inventory[key]["qty"] =app.inventory[key]["qty"]
+        my_map["current_inventory"] = inventory
+        print(app.screen.current_map)
+
+        with open(filename, 'w') as myfile:
+                j = json.dumps(my_map)
+                myfile.write(j)
+                myfile.close()
+    app.pause=prev_state
+
+def load_world(app, filename=None, from_memory=None):
+    prev_state = app.pause
+    app.pause=True
     if filename is None and from_memory is None:
         filename=filedialog.askopenfilename(initialdir = "~/Desktop",title = "Select file",filetypes = (("json files","*.json"),("all files","*.*")))
-    with open(filename, 'rb') as myfile:
-        r = myfile.read()
-        myfile.close()
-        r = json.loads(r)
-    app.screen.grids = r["grids"]
-    app.screen.current_map=r["current_screen"]
-    y=app.screen.current_map["y"]
-    x=app.screen.current_map["x"]
+    if '.json' in filename:
+        with open(filename, 'rb') as myfile:
+            r = myfile.read()
+            myfile.close()
+            r = json.loads(r)
+        app.screen.grids = r["grids"]
+        app.screen.current_map=r["current_screen"]
+        # print(app.screen.current_map)
 
-    g=app.screen.grids[y][x]
-    load(app, from_memory=g)
+        y=app.screen.current_map["y"]
+        x=app.screen.current_map["x"]
+
+        g=app.screen.grids[y][x]
+        
+        app.inventory = my_map["current_inventory"]
+        load(app, from_memory=g)
+    app.pause=prev_state
 
 def load(app, filename=None, from_memory=None):
     if filename is None and from_memory is None:
         filename=filedialog.askopenfilename(initialdir = "~/Desktop",title = "Select file",filetypes = (("json files","*.json"),("all files","*.*")))
-    if from_memory is None:
+    if from_memory is None and '.json' in filename:
         with open(filename, 'rb') as myfile:
             r = myfile.read()
             myfile.close()
         r = json.loads(r)
-    else:
+    elif from_memory is not None:
         r=from_memory
+    else: 
+        return
     grid = r["grid"]
     saved_sprites = r["sprites"]
     tux = r["tux"]
@@ -65,7 +94,7 @@ def load(app, filename=None, from_memory=None):
             screen_rows[i].append(s)
         i+=1
     app.screen.grid = screen_rows
-    app.tux = sprites.Sprite(
+    app.tux = sprites.Tux(
             app, 
             x=tux["column"],
             y=tux["row"]

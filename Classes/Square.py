@@ -48,12 +48,16 @@ class Square(constants.correction):
     def __init__(self, row, column, canvas, app, g=constants.grid_size, square_type='grass'):
         if canvas is not None:
             self.canvas = canvas
+            self.passable=True
             if square_type == 'grass':
                 fill='green'
-                self.passable=True
             elif square_type == 'water':
                 fill='blue'
                 self.passable = False
+            elif square_type == 'snow':
+                fill='white'
+            elif square_type == 'sand':
+                fill = 'yellow'
             self.representation = canvas.create_rectangle(
                 (column*g)+5, 
                 (row*g)+5, 

@@ -1,6 +1,6 @@
-import constants, sprites
+import constants, sprites, maps
 listeners = []
-def key_listener(key = None, keycode = None, keysym = None):
+def key_listener(key = None, keycode = None, keysym = None, state=None):
     def faux_wrapper(l):
         def wrapper(*args, **kwargs):
             s = args[0]
@@ -8,9 +8,25 @@ def key_listener(key = None, keycode = None, keysym = None):
             if ((keycode is None or keycode == e.keycode) and 
                 (key is None or key == e.char) and
                 (keysym is None or keysym==e.keysym)
+                and state is None and e.state!=8
                 ):
-                return l(*args, **kwargs)
+                if s.pause:
+                    return None
+                else:
+                    return l(*args, **kwargs)
+            elif state is not None:
+                # print("state")
+                # print(state)
+                # print("e.state")
+                # print(e.state)
+                if state==e.state:
+                    if ((keycode is None or keycode == e.keycode) and 
+                        (key is None or key == e.char) and
+                        (keysym is None or keysym==e.keysym)
+                        ):
+                        return l(*args, **kwargs)
             else:
+                # print(e)
                 return None
         listeners.append(wrapper)
         return wrapper
@@ -39,6 +55,29 @@ def move_tux(l):
         grid[s.tux.row][s.tux.column].has_tux = True
     return wrapper
 
+# CMD+s (So far only tested right CMD)
+@key_listener(key="s", state=8)
+def save_game(s,e):
+    print("saving")
+    maps.save_world(app=s)
+
+# CMD+l
+@key_listener(key="l", state=8)
+def load_game(s,e):
+    print("loading")
+    maps.load_world(app=s)
+
+# CMD+Shift+s
+@key_listener(key="s", state=9)
+def save_game(s,e):
+    print("saving single map")
+    maps.save(app=s)
+
+# CMD+p
+@key_listener(key="p", state=8)
+def pause_game(s,e):
+    print("toggling pause")
+    s.pause = not s.pause
 
 @key_listener(key="a")
 @spear_check

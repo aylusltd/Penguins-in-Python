@@ -14,8 +14,10 @@ Spear = load_source('Spear', mypath+'/sprites/spear.py').Spear
 Square = load_source('Square', mypath+'/Classes/Square.py').Square
 Fish = load_source('Fish', mypath+'/sprites/Fish.py').Fish
 
-
 class Sprite(constants.correction):
+    pass
+
+class Tux(Sprite):
     def __init__(self,app, x=None, y=None):
         h = constants.bounds["y"][1]
         w = constants.bounds["x"][1]
@@ -61,7 +63,7 @@ class Sprite(constants.correction):
         else:
             print("Oh No")
 
-class Monster(constants.correction):
+class Monster(Sprite):
     def __init__(self,app, x=None, y=None):
         # constants.l('Placing Monster',{})
         h = constants.bounds["y"][1]
@@ -86,8 +88,11 @@ class Monster(constants.correction):
                     # cx=original_cx
                     cy+=random.randint(-2,2)
                 tries+=1
-                s=app.screen.grid[cy][cx]
-
+                try:
+                    s=app.screen.grid[cy][cx]
+                except IndexError:
+                    print("Out of range")
+                    self.placed = False
         else:
             cx = x
             cy = y
@@ -124,8 +129,8 @@ def Trees(app):
     for row in app.screen.grid:
         for s in row:
             r = random.randint(0,12)
-            start_cluster= r< 3
-            continue_cluster= r < 9
+            start_cluster= r < 2
+            continue_cluster= r < 8
             neighbor = app.screen.neighbor_has(feature="tree", i=s.row,j=s.column)
             if ((start_cluster or (continue_cluster and neighbor)) and s.square_type == "grass" and not s.occupied):
                 s.add_feature("tree", app)
@@ -141,7 +146,7 @@ def Rocks(app):
     for row in app.screen.grid:
         for s in row:
             r = random.randint(0,12)
-            start_cluster= r== 0
+            start_cluster= r == 0
             continue_cluster= r < 5
             neighbor = app.screen.neighbor_has(feature="rock", i=s.row,j=s.column)
             if ((start_cluster or (continue_cluster and neighbor)) and s.square_type == "grass" and not s.occupied):
@@ -152,6 +157,8 @@ class Screen(constants.correction):
         self.h=height
         self.g=grid
         self.w=width
+        self.monsters = []
+        self.fishes = []
 
         self.canvas=Canvas(app.frame, height=self.h+10, width=self.w+10, background="green")
         self.grid = []
@@ -164,6 +171,7 @@ class Screen(constants.correction):
         self.current_map = {}
         self.current_map["x"] = random.randint(0,19)
         self.current_map["y"] = random.randint(0,19)
+        app.starting_map = self.current_map.copy()
 
         for i in range(0,(int(self.h/self.g))):
             self.grid.append([])
@@ -172,7 +180,7 @@ class Screen(constants.correction):
                 r = random.randint(0,12)
                 if r%11 == 0:
                     square_type = 'water'
-                elif r%4 ==0 and self.neighbor_water(i,j):
+                elif r%4 ==0 and self.neighbor_type(i,j, square_type='water'):
                     square_type = 'water'
                 else:
                     square_type = 'grass'
@@ -181,7 +189,6 @@ class Screen(constants.correction):
         
         y = self.current_map["y"]
         x = self.current_map["x"]
-        self.grids[y][x]["grid"] = self.grid
     
     def neighbor_has(self, feature, i,j):
         prop = "has_"+feature
@@ -207,17 +214,25 @@ class Screen(constants.correction):
                     else:
                         pass
         return False
-    def neighbor_water(self, i,j):
+    def neighbor_type(self, i,j, square_type='water'):
         for x in range(-1,1):
             for y in range(-1,1):
                 try:
-                    if self.grid[i+y][j+x].square_type == 'water':
+                    if self.grid[i+y][j+x].square_type == square_type:
                         return True
                 except IndexError:
                     pass
 
+
     def generate_screen(self, from_dir):
         self.canvas.delete("all")
+        self.app.screen.monsters=None
+        self.app.screen.monsters=[]
+        self.app.screen.fishes=None
+        self.app.screen.fishes=[]
+        print('generate_screen')
+        print(self.app.screen.fishes)
+        # print(self)
         g = self.grid.copy()
         # delete(self.grid)
 
@@ -245,8 +260,20 @@ class Screen(constants.correction):
                     r = random.randint(0,12)
                     if r%11 == 0:
                         square_type = 'water'
-                    elif r%4 ==0 and self.neighbor_water(i,j):
-                        square_type = 'water'
+                    elif r%12 == 1:
+                        if abs(self.current_map["y"]-self.app.starting_map["y"]) > 10 or self.current_map["y"] < 5:
+                            square_type = 'snow'
+                        elif abs(self.current_map["y"]-self.app.starting_map["y"]) < 10:
+                            square_type = 'sand'
+
+                    elif r%4 ==0:
+                        if self.neighbor_type(i,j, square_type='water'):
+                            square_type = 'water'
+                        elif self.neighbor_type(i,j, square_type='snow'):
+                            square_type = 'snow'
+                        elif self.neighbor_type(i,j, square_type='sand'):
+                            square_type = 'sand'
+                    
                     else:
                         square_type = 'grass'
                 if self.current_map["x"] == 0 and j==0:
@@ -285,5 +312,4 @@ class Screen(constants.correction):
             new_grid = self.generate_screen(direction)
             self.grid = new_grid.copy()
             self.grids[y][x]["grid"] = new_grid.copy()
-            # delete(new_grid)
-            self.app.add_sprites(tux_x=tux_x,tux_y=tux_y)
+            self.app.add_sprites(tux_x=tux_x,tux_y=tux_y, monsters=[], fishes=[])

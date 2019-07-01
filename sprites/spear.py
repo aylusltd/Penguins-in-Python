@@ -94,18 +94,18 @@ class Spear(correction):
 
     def detect_collision(self):
         self.pause = True
-        print("Row")
-        print(self.row)
-        print("column")
-        print(self.column)
+        # print("Row")
+        # print(self.row)
+        # print("column")
+        # print(self.column)
         if self.app.screen.grid[self.row][self.column].occupied:
             for monster in self.app.screen.monsters:
                 if monster.row == self.row and monster.column == self.column:
                     monster.destroy()
                     del monster
                     print("monster")
-            # print "phantom"
-            return True
-        # print "empty"
+                    return True
+            self.pause = False
+            return False
         self.pause = False
         return False
