@@ -127,75 +127,9 @@ class Application(Frame):
                 fish.move(app=self)
 
             for monster in self.screen.monsters:
-                # c+=1
-                # print "Moving monster "+ str(c)
-                not_moved = True
-                d_y = monster.row - self.tux.row
-                d_x = monster.column - self.tux.column
-                grid = self.screen.grid
-                if abs(d_x) < abs(d_y):
-                    if d_y < 0:
-                        if grid[monster.row+1][monster.column].passable:
-                            if not grid[monster.row+1][monster.column].occupied:
-                                grid[monster.row][monster.column].occupied = False                        
-                                self.screen.canvas.move(monster.sprite,0,g)
-                                monster.row+=1
-                                grid[monster.row][monster.column].occupied = True
-                                not_moved=False
-                            elif ( self.tux.row == monster.row+1 and 
-                                   self.tux.column == monster.column):
-                                not_moved=False
-                                self.tux.hit(1)
-                            else:
-                                # print "failure"
-                                pass
-
-                    elif d_y > 0:
-                        if grid[monster.row-1][monster.column].passable:
-                            if not grid[monster.row-1][monster.column].occupied:
-                                grid[monster.row][monster.column].occupied = False
-                                self.screen.canvas.move(monster.sprite,0,-g)
-                                monster.row-=1
-                                grid[monster.row][monster.column].occupied = True
-                                not_moved=False
-                            elif ( self.tux.row == monster.row-1 and 
-                                   self.tux.column == monster.column):
-                                not_moved=False
-                                self.tux.hit(1)
-                            else:
-                                # print "failure"
-                                pass
-                if not_moved:
-                    if d_x < 0:
-                        if grid[monster.row][monster.column+1].passable:
-                            if not grid[monster.row][monster.column+1].occupied:
-                                grid[monster.row][monster.column].occupied = False
-                                self.screen.canvas.move(monster.sprite,g,0)
-                                monster.column+=1
-                                grid[monster.row][monster.column].occupied = True
-                                not_moved=False
-                            elif ( self.tux.row == monster.row and 
-                                self.tux.column == monster.column + 1):
-                                self.tux.hit(1)
-                                not_moved=False
-                            else:
-                                pass
-                                # print("failure")
-                    elif d_x > 0:
-                        if grid[monster.row][monster.column-1].passable:
-                            if not grid[monster.row][monster.column-1].occupied:
-                                grid[monster.row][monster.column].occupied = False
-                                self.screen.canvas.move(monster.sprite,-g,0)
-                                monster.column-=1
-                                grid[monster.row][monster.column].occupied = True
-                                not_moved=False
-                            elif ( self.tux.row == monster.row and 
-                                self.tux.column == monster.column - 1):
-                                self.tux.hit(1)
-                                not_moved=False
-                            else:
-                                pass
-                                # print("failure")
+                monster.moved = False
+                monster.move(app=self)
+                
         self.root.after(constants.INTERVAL * 25, self.monsters_move)
 
     def add_sprites(self, tux_x=None, tux_y=None, monsters=[], fishes=[]):

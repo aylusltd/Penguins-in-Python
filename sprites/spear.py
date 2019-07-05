@@ -76,13 +76,14 @@ class Spear(correction):
                 self.app.screen.canvas.move(self.sprite,g,0)
         if not self.pause:
             c=False
-            try:
-                c = self.detect_collision()
-            except:
-                print("row")
-                print(self.row)
-                print("column")
-                print(self.column)
+            # try:
+            #     c = self.detect_collision()
+            # except:
+            #     print("row")
+            #     print(self.row)
+            #     print("column")
+            #     print(self.column)
+            c = self.detect_collision()
             if c:
                 self.destroy()
         self.app.root.after(INTERVAL,self.move)

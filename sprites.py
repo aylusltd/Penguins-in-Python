@@ -13,6 +13,7 @@ mypath = dirname(__file__)
 Spear = load_source('Spear', mypath+'/sprites/spear.py').Spear
 Square = load_source('Square', mypath+'/Classes/Square.py').Square
 Fish = load_source('Fish', mypath+'/sprites/Fish.py').Fish
+Monster = load_source('Monster', mypath+'/sprites/Monster.py').Monster
 
 class Sprite(constants.correction):
     pass
@@ -63,60 +64,6 @@ class Tux(Sprite):
         else:
             print("Oh No")
 
-class Monster(Sprite):
-    def __init__(self,app, x=None, y=None):
-        # constants.l('Placing Monster',{})
-        h = constants.bounds["y"][1]
-        w = constants.bounds["x"][1]
-        g = constants.grid_size
-
-        cx = int(w/(2*g))+random.randint(1,5)
-        cy = int(h/(2*g))+random.randint(-4,4)
-        img = Image.open("sprites/sm_monster.gif")
-
-        self.m_sprite = ImageTk.PhotoImage(img)
-        original_cx = cx
-        s=app.screen.grid[cy][cx]
-        tries=0
-        MAX_TRIES = 30
-        if (x is None) or (y is None):
-            while (s.passable is False or s.occupied is True) and (tries < MAX_TRIES):
-                # constants.l('Moving from {x:$x, y:$y}', {'x':cx,'y':cy})
-                if cx<(w/g)-2:
-                    cx+=random.randint(0,2)
-                # else:
-                    # cx=original_cx
-                    cy+=random.randint(-2,2)
-                tries+=1
-                try:
-                    s=app.screen.grid[cy][cx]
-                except IndexError:
-                    print("Out of range")
-                    self.placed = False
-        else:
-            cx = x
-            cy = y
-        if tries < MAX_TRIES:
-            s=app.screen.grid[cy][cx]
-            self.sprite = app.screen.canvas.create_image(((cx+0.5)*g)+5, ((cy+0.5)*g)+5, image=self.m_sprite)
-            self.row=cy
-            self.column=cx
-            s.occupied=True
-            self.app = app
-            self.type = "virus"
-            self.placed = True
-        else: 
-            print("Tries exceeded")
-            self.placed = False
-    def destroy(self):
-        self.app.screen.canvas.delete(self.sprite)
-        self.app.screen.grid[self.row][self.column].occupied = False
-        self.app.screen.monsters.remove(self)
-    
-    # def __del__(self):
-    #     print "deleting monster"
-    #     print self.row
-    #     print self.column
 
 def Trees(app):
     h = constants.bounds["y"][1]

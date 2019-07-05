@@ -7,6 +7,7 @@ from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu
 from PIL import Image, ImageTk
 
 import constants
+
 class Square(constants.correction):
     def debug_click(self, event):
         DEBUG_MODE = True
