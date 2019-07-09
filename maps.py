@@ -1,6 +1,10 @@
-from tkinter import filedialog
 import json
+import math
+
+from tkinter import filedialog
+
 import sprites
+
 def save_world(app, filename=None, in_memory=False):
     prev_state = app.pause
     app.pause=True
@@ -178,3 +182,18 @@ def save(app, filename=None, in_memory=False):
             myfile.close()
     else:
         return f
+
+def sprite_distance(sprite_a, sprite_b):
+    x1 = sprite_a.column
+    x2 = sprite_b.column
+    y1 = sprite_a.row
+    y2 = sprite_b.row
+    
+    return euclid(x1,y1,x2,y2)
+
+def euclid(x1, y1, x2, y2):
+    d_x = abs(x1-x2)
+    d_y = abs(y1-y2)
+
+    d = math.sqrt((d_x**2) + (d_y**2))
+    return d   

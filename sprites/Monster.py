@@ -4,6 +4,7 @@ import string
 from PIL import Image, ImageTk
 
 import constants
+import maps
 
 class Monster(constants.correction):
     def __init__(self,app, x=None, y=None):
@@ -16,6 +17,7 @@ class Monster(constants.correction):
         img = Image.open("sprites/sm_monster.gif")
 
         self.f_sprite = ImageTk.PhotoImage(img)
+        self.fire_fear = 3
         original_cx = cx
         s=app.screen.grid[cy][cx]
         tries=0
@@ -57,6 +59,23 @@ class Monster(constants.correction):
         self.app.screen.grid[self.row][self.column].has_monster = False
 
         self.app.screen.monsters.remove(self)
+    def fire_test(self, app, direction):
+        fires = app.screen.fires
+        d_x=0
+        d_y=0
+        if direction == "left":
+            d_x = -1
+        if direction == "right":
+            d_x = +1
+        if direction == "up":
+            d_y = -1
+        if direction == "down":
+            d_y = +1
+        for fire in fires:
+            d = maps.euclid(x1=self.column + d_x, y1=self.row + d_y, x2=fire.column, y2=fire.row)
+            if d < self.fire_fear:
+                return False
+        return True
     def move(self, app):
         g = constants.grid_size
         not_moved = True
@@ -66,7 +85,10 @@ class Monster(constants.correction):
         try:
             if abs(d_x) < abs(d_y):
                 if d_y < 0:
-                    if grid[self.row+1][self.column].square_type == "grass":
+                    if (
+                        grid[self.row+1][self.column].square_type == "grass" and
+                        self.fire_test(app=app, direction="down")
+                        ):
                         if not grid[self.row+1][self.column].occupied:
                             grid[self.row][self.column].occupied = False
                             grid[self.row][self.column].has_monster = False
@@ -82,12 +104,16 @@ class Monster(constants.correction):
                                app.tux.column == self.column):
                             self.moved=True
                             not_moved=False                    
+                            app.tux.hit(1)
                         else:
                             # pass
                             pass
 
                 elif d_y > 0:
-                    if grid[self.row-1][self.column].square_type == "grass":
+                    if (
+                        grid[self.row-1][self.column].square_type == "grass" and
+                        self.fire_test(app=app, direction="up")
+                        ):
                         if not grid[self.row-1][self.column].occupied:
                             grid[self.row][self.column].occupied = False
                             grid[self.row][self.column].has_monster = False
@@ -103,12 +129,15 @@ class Monster(constants.correction):
                                app.tux.column == self.column):
                             self.moved=True
                             not_moved=False
+                            app.tux.hit(1)
                         else:
-                            # pass
                             pass
             if not_moved:
                 if d_x < 0:
-                    if grid[self.row][self.column+1].square_type == "grass":
+                    if (
+                        grid[self.row][self.column+1].square_type == "grass" and
+                        self.fire_test(app=app, direction="right")
+                        ):
                         if not grid[self.row][self.column+1].occupied:
                             grid[self.row][self.column].occupied = False
                             grid[self.row][self.column].has_monster = False
@@ -124,10 +153,14 @@ class Monster(constants.correction):
                             app.tux.column == self.column + 1):                        
                             self.moved=True
                             not_moved=False
+                            app.tux.hit(1)
                         else:
                             pass
                 elif d_x > 0:
-                    if grid[self.row][self.column-1].square_type == "grass":
+                    if (
+                        grid[self.row][self.column-1].square_type == "grass" and
+                        self.fire_test(app=app, direction="left")
+                        ):
                         if not grid[self.row][self.column-1].occupied:
                             grid[self.row][self.column].occupied = False
                             grid[self.row][self.column].has_monster = False
@@ -142,6 +175,7 @@ class Monster(constants.correction):
                             app.tux.column == self.column - 1):
                             self.moved=True
                             not_moved=False
+                            app.tux.hit(1)
                         else:
                             pass
         except IndexError:

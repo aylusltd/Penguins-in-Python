@@ -106,6 +106,7 @@ class Screen(constants.correction):
         self.w=width
         self.monsters = []
         self.fishes = []
+        self.fires = []
 
         self.canvas=Canvas(app.frame, height=self.h+10, width=self.w+10, background="green")
         self.grid = []
