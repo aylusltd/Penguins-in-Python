@@ -1,17 +1,16 @@
-from constants import *
-from tkinter import *
+import constants
 import random
 import string
 from PIL import Image, ImageTk
 # from os.path import isfile, join, realpath, abspath, dirname
 # from imp import load_source
 
-class Fish(correction):
+class Fish(constants.correction):
     def __init__(self,app, x=None, y=None):
         # constants.l('Placing self',{})
-        h = bounds["y"][1]
-        w = bounds["x"][1]
-        g = grid_size
+        h = constants.bounds["y"][1]
+        w = constants.bounds["x"][1]
+        g = constants.grid_size
         cx = int(w/(2*g)+1)
         cy = int(h/(2*g))
         img = Image.open("sprites/sm_fish.gif")
@@ -63,7 +62,7 @@ class Fish(correction):
         self.app.screen.fishes.remove(self)
     def move(self, app):
         # self.moved=True
-        g = grid_size
+        g = constants.grid_size
         not_moved = True
         d_y = self.row - app.tux.row
         d_x = self.column - app.tux.column
