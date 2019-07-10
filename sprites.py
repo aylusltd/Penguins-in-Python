@@ -18,6 +18,22 @@ Monster = load_source('Monster', mypath+'/sprites/Monster.py').Monster
 class Sprite(constants.correction):
     pass
 
+class Fire(Sprite):
+    def __init__(self,app, x, y):
+        h = constants.bounds["y"][1]
+        w = constants.bounds["x"][1]
+        g = constants.grid_size
+        cx = x
+        cy = y
+        img = Image.open("sprites/sm_fire.gif")
+        self.f_sprite = ImageTk.PhotoImage(img)
+        self.sprite = app.screen.canvas.create_image(((cx+0.5)*g)+5, ((cy+0.5)*g)+5, image=self.f_sprite)
+        self.row=y
+        self.column=x
+        self.app = app
+
+        app.screen.fires.append(self)
+
 class Tux(Sprite):
     def __init__(self,app, x=None, y=None):
         h = constants.bounds["y"][1]

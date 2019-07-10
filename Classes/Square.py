@@ -7,6 +7,7 @@ from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu
 from PIL import Image, ImageTk
 
 import constants
+import maps
 
 class Square(constants.correction):
     def debug_click(self, event):
@@ -93,6 +94,7 @@ class Square(constants.correction):
                 self[prop]=True
                 self.passable = passable
         # print str(self)
+
     def remove_feature(self, feature, app, make_passable=True):
         # print "Remove Feature"
         # g = constants.grid_size
@@ -108,4 +110,76 @@ class Square(constants.correction):
                 self[prop] = False
                 self.passable = make_passable
                 self.app.screen.canvas.delete(self.sprites[feature+"_sprite"])
+
+    def neighbor_is(self, direction=None, allowed_types=["grass"], allowed_features=None, forbidden_types=None, forbidden_features=None, passable=True, occupied=False):
+        if direction is None:
+            return False
+
+        delta = maps.move(direction, 1)
+
+        try:
+            neighbor = self.app.screen.grid[self.row + delta["y"]][self.column + delta["x"]]
+        except IndexError:
+            # Neighbor doesn't exist
+            print("Neighbor doesn't exist")
+            return False
+
+        # Must be one of the allowed types unless None
+        if allowed_types is not None and neighbor.square_type not in allowed_types:
+            return False
+
+        # Must not be one of the forbidden types
+        if forbidden_types is not None and neighbor.square_type in forbidden_types:
+            return False
+
+        # Must have at least one of the allowed features unless None:
+        # If passed as a list, must have all features in the list
+        if allowed_features is not None:
+            for feature in allowed_features:
+                if isinstance(feature, list):
+                    required_features = feature
+                else:
+                    required_features = [feature]
+                for required_feature in required_features:
+                    if neighbor["has_" + required_feature] == False:
+                        return False
+
+        # May not have any of the forbidden features unless None:
+        # If passed as a list, have that specific combination
+        forbidden = True
+
+        if forbidden_features is not None:
+            for feature in forbidden_features:
+                if isinstance(feature, list):
+                    required_features = feature
+                else:
+                    required_features = [feature]
+                forbidden = True
+                for required_feature in required_features:
+                    v = neighbor["has_" + required_feature] 
+                    forbidden = forbidden and v
+                if forbidden:
+                    return False
+
+        if passable != neighbor.passable or occupied != neighbor.occupied:
+            return False
+
+        # Finally
+        return True
+
+    def neighbor_has_tux(self, direction):
+        if direction is None:
+            return self.has_tux
+
+        delta = maps.move(direction, 1)
+        try:
+            neighbor = self.app.screen.grid[self.row + delta["y"]][self.column + delta["x"]]
+        except IndexError:
+            # Neighbor doesn't exist
+            print("Neighbor doesn't exist")
+            return False
+
+        return neighbor.has_tux        
+
+
 

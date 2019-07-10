@@ -3,6 +3,7 @@ import math
 
 from tkinter import filedialog
 
+import constants
 import sprites
 
 def save_world(app, filename=None, in_memory=False):
@@ -196,4 +197,59 @@ def euclid(x1, y1, x2, y2):
     d_y = abs(y1-y2)
 
     d = math.sqrt((d_x**2) + (d_y**2))
-    return d   
+    return d
+
+# Returns a constants.Direction or None
+# None signifies same square
+def direction_to_target(source, target):
+    x1 = source.column
+    x2 = target.column
+    y1 = source.row
+    y2 = target.row
+
+    d_x = x1-x2
+    d_y = y1-y2
+
+    directions=[]
+    # if closer largest gap first
+    if abs(d_x) >= abs(d_y):
+        if d_x < 0:
+            directions.append(constants.EAST)
+        elif d_x > 0:
+            directions.append(constants.WEST)
+        if d_y > 0:
+            directions.append(constants.NORTH)
+        elif d_y < 0:
+            directions.append(constants.SOUTH)
+    elif abs(d_x) < abs(d_y):
+        if d_y > 0:
+            directions.append(constants.NORTH)
+        elif d_y < 0:
+            directions.append(constants.SOUTH)
+        if d_x < 0:
+            directions.append(constants.EAST)
+        elif d_x > 0:
+            directions.append(constants.WEST)
+
+    return directions
+
+def move(direction, distance):
+    delta = {
+        "x" : 0,
+        "y" : 0
+    }
+    distance = int(distance)
+    if direction == constants.EAST:
+        delta["x"] += distance
+    elif direction == constants.WEST:
+        delta["x"] -= distance
+    elif direction == constants.NORTH:
+        delta["y"] -= distance
+    elif direction == constants.SOUTH:
+        delta["y"] += distance
+    else:
+        raise Exception("Invalid Direction")
+
+    return delta
+
+

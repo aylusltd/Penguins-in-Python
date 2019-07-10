@@ -38,6 +38,58 @@ class correction():
     def __contains__(self, name):
         return hasattr(self, name)
 
+# Tech Debt
+class Direction(correction):
+    def __init__(self, val):
+        east_names = ["right", "r", "east", "e"]
+        west_names = ["left", "l", "west", "w"]
+        north_names = ["up", "u", "north", "n"]
+        south_names = ["south", "d", "south", "s"]
+
+        if val in west_names:
+            val = "left"
+        elif val in east_names:
+            val = "right"
+        elif val in north_names:
+            val = "up"
+        elif val in south_names:
+            val = "down"
+        else:
+            raise Exception("Invalid Direction")
+
+        self.val = val
+
+    def __invert__(self):
+        new_dir_name = ""
+        if self.val == "left":
+            new_dir_name = "e"
+        elif self.val == "right":
+            new_dir_name = "w"
+        elif self.val == "up":
+            new_dir_name = "s"
+        elif self.val == "down":
+            new_dir_name = "n"
+        else:
+            raise Exception("Invalid Direction")
+
+        new_direction = Direction(new_dir_name)
+        return new_direction
+
+    def __str__(self):
+        # print("Direction to String!")
+        return self.val
+
+    def __eq__(self, other):
+        if str(self) == str(other):
+            return True
+        else:
+            return False
+
+NORTH = Direction("north")
+SOUTH = Direction("south")
+EAST = Direction("east")
+WEST = Direction("west")
+
 grid_size = 40
 INTERVAL  = 20
 

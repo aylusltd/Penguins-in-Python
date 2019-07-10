@@ -130,7 +130,7 @@ class Application(Frame):
                 monster.moved = False
                 monster.move(app=self)
                 
-        self.root.after(constants.INTERVAL * 25, self.monsters_move)
+        self.root.after(constants.INTERVAL * 125, self.monsters_move)
 
     def add_sprites(self, tux_x=None, tux_y=None, monsters=[], fishes=[]):
         global MAKE_MONSTERS
@@ -149,7 +149,7 @@ class Application(Frame):
         print(self.screen.monsters)
         print(fishes)
         if MAKE_MONSTERS and len(m) == 0:
-            for i in range(0,10):
+            for i in range(0,1):
                 monster = sprites.Monster(self)
                 if monster.placed: 
                     m.append(monster)
@@ -199,6 +199,7 @@ class Application(Frame):
         self.display_inventory()
         self.frame2.pack(fill=BOTH, expand=1, side="right")
 
+        # Not used I think
         self.craft_button = Button(self.frame2, text="craft")
         self.craft_button.grid(row=0, column=0, sticky="we")
         self.craft_button["command"]=self.craft.create_window

@@ -59,124 +59,88 @@ class Monster(constants.correction):
         self.app.screen.grid[self.row][self.column].has_monster = False
 
         self.app.screen.monsters.remove(self)
-    def fire_test(self, app, direction):
+
+    def fire_flee_test(self, app):
+        fires = app.screen.fires
+        closest_fire_dist = self.fire_fear + 0.1
+        closest_fire = None
+        flee = False
+        directions = []
+
+        for fire in fires:
+            d = maps.euclid(x1=self.column, y1=self.row, x2=fire.column, y2=fire.row)
+            if d < closest_fire_dist:
+                closest_fire_dist = d
+                closest_fire = fire
+                flee = True
+        if flee:
+            directions = maps.direction_to_target(self, closest_fire)
+
+        for index, direction in enumerate(directions):
+            directions[index] = ~direction
+
+        return closest_fire_dist, directions
+
+    def fire_test(self, app, direction, current_fire_distance=0):
         fires = app.screen.fires
         d_x=0
         d_y=0
-        if direction == "left":
+        if direction == "self":
+            pass
+        elif direction == "left":
             d_x = -1
-        if direction == "right":
+        elif direction == "right":
             d_x = +1
-        if direction == "up":
+        elif direction == "up":
             d_y = -1
-        if direction == "down":
+        elif direction == "down":
             d_y = +1
+        else:
+            raise Exception("Invalid Direction")
+            
         for fire in fires:
             d = maps.euclid(x1=self.column + d_x, y1=self.row + d_y, x2=fire.column, y2=fire.row)
-            if d < self.fire_fear:
+            if d <= self.fire_fear and d <= current_fire_distance:
                 return False
         return True
+
     def move(self, app):
         g = constants.grid_size
         not_moved = True
         d_y = self.row - app.tux.row
         d_x = self.column - app.tux.column
         grid = app.screen.grid
-        try:
-            if abs(d_x) < abs(d_y):
-                if d_y < 0:
-                    if (
-                        grid[self.row+1][self.column].square_type == "grass" and
-                        self.fire_test(app=app, direction="down")
-                        ):
-                        if not grid[self.row+1][self.column].occupied:
-                            grid[self.row][self.column].occupied = False
-                            grid[self.row][self.column].has_monster = False
-                        
-                            app.screen.canvas.move(self.sprite,0,g)
-                            self.row+=1
-                            grid[self.row][self.column].occupied = True
-                            grid[self.row][self.column].has_monster = True
+        distance, flee_direction = self.fire_flee_test(app=app)
+        tux_direction = maps.direction_to_target(source=self, target=app.tux)
+        move_directions = []
+        current_square = grid[self.row][self.column]        
 
-                            not_moved=False
-                            self.moved=True
-                        elif ( app.tux.row == self.row+1 and 
-                               app.tux.column == self.column):
-                            self.moved=True
-                            not_moved=False                    
-                            app.tux.hit(1)
-                        else:
-                            # pass
-                            pass
-
-                elif d_y > 0:
-                    if (
-                        grid[self.row-1][self.column].square_type == "grass" and
-                        self.fire_test(app=app, direction="up")
-                        ):
-                        if not grid[self.row-1][self.column].occupied:
-                            grid[self.row][self.column].occupied = False
-                            grid[self.row][self.column].has_monster = False
-
-                            app.screen.canvas.move(self.sprite,0,-g)
-                            self.row-=1
-                            grid[self.row][self.column].occupied = True
-                            grid[self.row][self.column].has_monster = True
-
-                            self.moved=True
-                            not_moved=False
-                        elif ( app.tux.row == self.row-1 and 
-                               app.tux.column == self.column):
-                            self.moved=True
-                            not_moved=False
-                            app.tux.hit(1)
-                        else:
-                            pass
-            if not_moved:
-                if d_x < 0:
-                    if (
-                        grid[self.row][self.column+1].square_type == "grass" and
-                        self.fire_test(app=app, direction="right")
-                        ):
-                        if not grid[self.row][self.column+1].occupied:
-                            grid[self.row][self.column].occupied = False
-                            grid[self.row][self.column].has_monster = False
-
-                            app.screen.canvas.move(self.sprite,g,0)
-                            self.column+=1
-                            grid[self.row][self.column].occupied = True
-                            grid[self.row][self.column].has_monster = True
-
-                            self.moved=True
-                            not_moved=False
-                        elif ( app.tux.row == self.row and 
-                            app.tux.column == self.column + 1):                        
-                            self.moved=True
-                            not_moved=False
-                            app.tux.hit(1)
-                        else:
-                            pass
-                elif d_x > 0:
-                    if (
-                        grid[self.row][self.column-1].square_type == "grass" and
-                        self.fire_test(app=app, direction="left")
-                        ):
-                        if not grid[self.row][self.column-1].occupied:
-                            grid[self.row][self.column].occupied = False
-                            grid[self.row][self.column].has_monster = False
-
-                            app.screen.canvas.move(self.sprite,-g,0)
-                            self.column-=1
-                            grid[self.row][self.column].occupied = True
-                            grid[self.row][self.column].has_monster = True
-                            self.moved=True
-                            not_moved=False
-                        elif ( app.tux.row == self.row and 
-                            app.tux.column == self.column - 1):
-                            self.moved=True
-                            not_moved=False
-                            app.tux.hit(1)
-                        else:
-                            pass
-        except IndexError:
-            pass
+        if len(flee_direction) > 0:
+            move_directions = flee_direction
+        elif len(tux_direction) > 0:
+            move_directions = tux_direction
+        
+        for move_direction in move_directions:
+            if (
+                self.fire_test(app=app, direction=move_direction, current_fire_distance=distance) and
+                self.moved == False
+                ):
+                self.moved = True
+                if current_square.neighbor_is(direction=move_direction, allowed_types=["grass"]):
+                    delta = maps.move(move_direction, 1)
+                    
+                    grid[self.row][self.column].occupied = False
+                    grid[self.row][self.column].has_monster = False
+                    self.row += delta["y"]
+                    self.column += delta["x"]
+                    app.screen.canvas.move(self.sprite,delta["x"] * g, delta["y"] * g)
+                    grid[self.row][self.column].occupied = True
+                    grid[self.row][self.column].has_monster = True
+                    
+                elif current_square.neighbor_has_tux(direction=move_direction):
+                    print("tux hit!")
+                    print("")
+                    app.tux.hit(1)
+                else:
+                    self.moved = False
+                

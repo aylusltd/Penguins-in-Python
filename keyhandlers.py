@@ -160,6 +160,22 @@ def craft_wall(s,e):
         inventory[key]["qty"]+=1
     s.update_inventory()    
     # print "craft wall"
+
+@key_listener(key="q")
+def place_fire(s,e):
+    key = "fire"
+    ingredients = ["wood", "wood", "rock", "rock"]
+    inventory = s.inventory
+    r = s.tux.row
+    c = s.tux.column
+    g = s.screen.grid
+    square = g[r][c]
+    if has_ingredients(ingredients, inventory):
+        consume_ingredients(ingredients, inventory)
+        sprites.Fire(app=s, x=c, y=r)
+        s.update_inventory()
+    # print "place wall"
+
 @key_listener(key="p")
 def place_wall(s,e):
     key = "wall"
@@ -174,6 +190,7 @@ def place_wall(s,e):
         square.add_feature(feature="wall", app=s, passable=False)
         s.update_inventory()
     # print "place wall"
+
 @key_listener(key="z")
 def destroy_wall(s,e):
     key = "wall"
