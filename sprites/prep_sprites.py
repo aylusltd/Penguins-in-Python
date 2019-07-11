@@ -14,6 +14,6 @@ onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f)) and "camp_fir
 for img in onlyfiles:
     full_path = join(mypath,img)
     i = Image.open(full_path)
-    i.thumbnail((g,g))
-    i=i.resize((g,g), Image.ANTIALIAS)
+    i.thumbnail((g,g), Image.ANTIALIAS)
+    # i=i.resize((g,g), Image.ANTIALIAS)
     i.save(join(mypath,"sm_"+img))
