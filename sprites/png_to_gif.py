@@ -2,12 +2,12 @@
 from PIL import Image
 from os import listdir
 from os.path import isfile, join, realpath, dirname
-import importlib
+from importlib import machinery
 
 mypath = dirname(realpath(__file__))
 print(mypath)
 
-constants = importlib.machinery.SourceFileLoader('constants', mypath+'/../constants.py')
+constants = machinery.SourceFileLoader('constants', mypath+'/../constants.py')
 constants = constants.load_module()
 
 g = constants.grid_size
