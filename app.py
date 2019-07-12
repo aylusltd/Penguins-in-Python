@@ -3,7 +3,7 @@ import string
 import tracemalloc
 
 from PIL import Image, ImageTk
-from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu
+from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu, Canvas
 
 import craft
 import sprites
@@ -24,6 +24,7 @@ tracemalloc.start()
 class Application(Frame):
     g=constants.grid_size
     selected_square=None
+    tick=0
     spears = []
     def save(self):
         maps.save_world(app=self)
@@ -129,8 +130,10 @@ class Application(Frame):
             for monster in self.screen.monsters:
                 monster.moved = False
                 monster.move(app=self)
-                
-        self.root.after(constants.INTERVAL * 125, self.monsters_move)
+
+            self.tux.on_clock_tick(self.tick)
+            self.tick+=1
+        self.root.after(constants.INTERVAL * 25, self.monsters_move)
 
     def add_sprites(self, tux_x=None, tux_y=None, monsters=[], fishes=[]):
         global MAKE_MONSTERS
@@ -170,8 +173,17 @@ class Application(Frame):
         self.inventory = starting_inventory
         self.update_inventory()
 
+    def display_status(self, height=constants.bounds["y"][1]/4, width=constants.bounds["x"][1], grid=constants.grid_size):
+        g=grid
+        h=g * 1.5
+        w=width
+        self.status_canvas=Canvas(self.frame3, height=h+10, width=w+10, background="gray")
+        self.update_status()
+
     def update_inventory(self):
         si=self.inventory
+        # 1000 x 180
+        # g = 40
         row=1;
         for key in self.inventory:    
             si[key]["s"]=StringVar()
@@ -184,11 +196,62 @@ class Application(Frame):
         if si["fish"]["qty"] <= 0:
             print("Dieded")
 
+    def update_status(self):
+        g = self.g
+        state = self.tux.state
+        canvas = self.status_canvas
+        row = 0.25
+        column = 0
+        span = 3
+        state["mana"] = {
+              "display": "Mana",
+              "qty" : 100,
+              "full": "blue",
+              "empty": "red",
+              "tick": 1,
+              "max": 100,
+              "ticks": False,
+              "label" : "white"
+        }
+        for stat in state:
+            q = state[stat]["qty"]
+            m = state[stat]["max"]
+            try:
+                canvas.delete(state[stat]["background_rect"])
+                canvas.delete(state[stat]["foreground_rect"])
+                canvas.delete(state[stat]["l1"])
+            except KeyError:
+                pass
+
+            state[stat]["background_rect"] = canvas.create_rectangle(
+                (column*g)+5, 
+                (row*g)+5, 
+                ((column+span)*g)+5, 
+                ((row+1)*g)+5,
+                fill=state[stat]["empty"],
+                outline="")
+            state[stat]["foreground_rect"] = canvas.create_rectangle(
+                (column*g)+5, 
+                (row*g)+5, 
+                (((column+(span*q/m))*g)+5), 
+                ((row+1)*g)+5,
+                fill=state[stat]["full"],
+                outline="")
+            # state[stat]["s"] = StringVar()
+            state[stat]["s"]= state[stat]["display"]+": " + str(q)
+
+            state[stat]["l1"] = canvas.create_text(((column+1)*g+10, row*g+10), text=state[stat]["s"], fill=state[stat]["label"])
+            # state[stat]["l1"]=Label(self.frame3, text=state[stat]["display"]+": ", bg="gray")
+            # state[stat]["l2"]=Label(self.frame3, textvariable=state[stat]["s"], bg="gray")
+            # state[stat]["l1"].grid(row=0, column=column*2, sticky="we")
+            # state[stat]["l2"].grid(row=0, column=column*2+1, sticky="we")
+            column+=span + 1
+
     def create_widgets(self):
         global root
         self.frame = Frame(root)
         self.frame2 = Frame(root)
-        self.frame.pack(fill=BOTH, expand=1, side="left")
+        self.frame3 = Frame(root)
 
         self.screen = sprites.Screen(self)
         x=self.screen.current_map["x"]
@@ -197,7 +260,20 @@ class Application(Frame):
         self.screen.grids[y][x] = maps.save(app=self, in_memory=True)
         self.screen.canvas.pack(fill=BOTH, expand=1)
         self.display_inventory()
+        self.display_status()
+        self.frame3.pack(fill="x", side="bottom")
+        self.status_canvas.pack(fill=BOTH, expand=1)
+
+        self.frame.pack(fill=BOTH, expand=1, side="left")
         self.frame2.pack(fill=BOTH, expand=1, side="right")
+
+        # self.root.grid_rowconfigure(0, weight=1)
+        # self.root.grid_columnconfigure(0, weight=1)
+        # self.root.grid_columnconfigure(1, weight=1)
+
+        # frame.grid(row=0, column=0, sticky="nsew")
+        # frame2.grid(row=0, column=1, sticky="nsew")
+        # frame3.grid(row=1, column=0, columnspan=2, sticky="ew")
 
         # Not used I think
         self.craft_button = Button(self.frame2, text="craft")
@@ -225,6 +301,7 @@ class Application(Frame):
         self.root = root
         self.sprites = {}
         self.action=None
+        self.g = constants.grid_size
 
         self.craft = craft.Craft(app=self)
 

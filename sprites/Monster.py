@@ -140,7 +140,7 @@ class Monster(constants.correction):
                 elif current_square.neighbor_has_tux(direction=move_direction):
                     print("tux hit!")
                     print("")
-                    app.tux.hit(1)
+                    app.tux.hit(10)
                 else:
                     self.moved = False
                 

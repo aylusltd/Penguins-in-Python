@@ -5,6 +5,9 @@ from imp import load_source
 
 from PIL import Image, ImageTk
 from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu, Canvas
+import yaml
+
+    
 
 import constants
 import maps
@@ -36,6 +39,16 @@ class Fire(Sprite):
 
 class Tux(Sprite):
     def __init__(self,app, x=None, y=None):
+        self.state={}
+        with open("configs/tux.yaml", 'r') as stream:
+            try:
+                self.state = yaml.safe_load(stream)
+                # print starting_inventory
+            except yaml.YAMLError as exc:
+                print(exc)
+        state = self.state
+        for stat in state:
+            state[stat]["max"]=state[stat]["qty"]
         h = constants.bounds["y"][1]
         w = constants.bounds["x"][1]
         g = constants.grid_size
@@ -73,12 +86,27 @@ class Tux(Sprite):
 
     def hit(self, damage):
         print("Hit")
-        fish = self.app.inventory["fish"]["qty"]
-        if fish >= damage:
-            self.app.inventory["fish"]["qty"]-=damage
-            self.app.update_inventory()
+        health = self.state["health"]["qty"]
+        # fish = self.app.inventory["fish"]["qty"]
+        if health >= damage:
+            self.state["health"]["qty"]-=damage
+            # self.app.update_inventory()
         else:
             print("Oh No")
+
+    def on_clock_tick(self, tick):
+        improve_health = True
+        state = self.state
+        for stat in state:
+            if stat is not "health" and state[stat]["ticks"]:
+                state[stat]["qty"]+=state[stat]["tick"]
+                stat_green = state[stat]["qty"] >= state[stat]["max"]/2
+                improve_health = improve_health and stat_green
+        if improve_health:
+            state["health"]["qty"] += state["health"]["tick"]
+            state["health"]["qty"] = min(state["health"]["qty"],state["health"]["max"])
+        self.app.update_status()
+
 
 
 def Trees(app):
