@@ -60,6 +60,12 @@ class Fish(constants.correction):
         self.app.screen.grid[self.row][self.column].has_fish = False
 
         self.app.screen.fishes.remove(self)
+        self.app.sprites.remove(self)
+    
+    def on_clock_tick(self, tick):
+        self.moved = False
+        self.move(app=self.app)
+
     def move(self, app):
         # self.moved=True
         g = constants.grid_size

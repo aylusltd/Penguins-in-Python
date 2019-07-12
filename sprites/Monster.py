@@ -59,6 +59,8 @@ class Monster(constants.correction):
         self.app.screen.grid[self.row][self.column].has_monster = False
 
         self.app.screen.monsters.remove(self)
+        self.app.sprites.remove(self)
+        
 
     def fire_flee_test(self, app):
         fires = app.screen.fires
@@ -103,6 +105,10 @@ class Monster(constants.correction):
             if d <= self.fire_fear and d <= current_fire_distance:
                 return False
         return True
+
+    def on_clock_tick(self, tick):
+        self.moved = False
+        self.move(app=self.app)
 
     def move(self, app):
         g = constants.grid_size

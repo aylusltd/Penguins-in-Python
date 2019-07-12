@@ -26,6 +26,7 @@ class Application(Frame):
     selected_square=None
     tick=0
     spears = []
+    sprites = []
     def save(self):
         maps.save_world(app=self)
 
@@ -43,6 +44,7 @@ class Application(Frame):
         monster = sprites.Monster(self, x=x, y=y)
         if monster.placed: 
             m.append(monster)
+            self.sprites.append(monster)
             l = len(m) - 1
             m[l].ind = l
 
@@ -54,6 +56,7 @@ class Application(Frame):
         fish = sprites.Fish(self, x=x, y=y)
         if fish.placed: 
             f.append(fish)
+            self.sprites.append(fish)
             l = len(f) - 1
             f[l].ind = l
 
@@ -123,13 +126,23 @@ class Application(Frame):
         g = constants.grid_size
         # c=0
         if not self.pause:
-            for fish in self.screen.fishes:
-                fish.moved = False
-                fish.move(app=self)
+            for sprite in self.sprites:
+                # sprite.on_tick(self.tick)
+                sprite.on_clock_tick(self.tick)
+                try:
+                    sprite.on_clock_tick(self.tick)
+                except AttributeError:
+                    print(sprite)
+                    # pass
 
-            for monster in self.screen.monsters:
-                monster.moved = False
-                monster.move(app=self)
+            # for fish in self.screen.fishes:
+            #     fish.moved = False
+            #     fish.move(app=self)
+
+            # for monster in self.screen.monsters:
+            #     monster.moved = False
+            #     monster.move(app=self)
+
 
             self.tux.on_clock_tick(self.tick)
             self.tick+=1
@@ -156,6 +169,7 @@ class Application(Frame):
                 monster = sprites.Monster(self)
                 if monster.placed: 
                     m.append(monster)
+                    self.sprites.append(monster)
                     l = len(m) - 1
                     m[l].ind = l
         if MAKE_FISH and len(f) == 0:
@@ -163,6 +177,7 @@ class Application(Frame):
                 fish = sprites.Fish(self)
                 if fish.placed: 
                     f.append(fish)
+                    self.sprites.append(fish)
                     l = len(f) - 1
                     f[l].ind = l
         # Consumables added here
@@ -177,6 +192,7 @@ class Application(Frame):
         g=grid
         h=g * 1.5
         w=width
+        self.tux.state["energy"]["qty"]-=60
         self.status_canvas=Canvas(self.frame3, height=h+10, width=w+10, background="gray")
         self.update_status()
 
@@ -299,7 +315,7 @@ class Application(Frame):
         self.master=master
         self.counter=0
         self.root = root
-        self.sprites = {}
+        self.sprite_images = {}
         self.action=None
         self.g = constants.grid_size
 

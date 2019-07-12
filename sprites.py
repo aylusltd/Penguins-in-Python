@@ -19,10 +19,30 @@ Fish = load_source('Fish', mypath+'/sprites/Fish.py').Fish
 Monster = load_source('Monster', mypath+'/sprites/Monster.py').Monster
 
 class Sprite(constants.correction):
-    pass
+    def rotate_sprite(self, angle):
+        # 
+        app = self.app
+        img = img.rotate
+
+    def on_clock_tick(self, tick):
+        pass
+
+    def on_hour_tick(self, hour):
+        pass
+
+    def on_day_tick(self, day):
+        pass
+
+    def on_month_tick(self, month):
+        pass
+
+    def on_year_tick(self, year):
+        pass
+
 
 class Fire(Sprite):
     def __init__(self,app, x, y):
+        self.life = 10
         h = constants.bounds["y"][1]
         w = constants.bounds["x"][1]
         g = constants.grid_size
@@ -36,9 +56,36 @@ class Fire(Sprite):
         self.app = app
 
         app.screen.fires.append(self)
+        app.sprites.append(self)
+    
+    def on_clock_tick(self, tick):
+        self.life -= 1
+        if self.life <= 0:
+            self.destroy()
+
+    def destroy(self):
+        app = self.app
+        screen = app.screen
+        canvas = screen.canvas
+        fires = app.screen.fires
+        sprites = app.sprites
+        canvas.delete(self.sprite)
+        fires.remove(self)
+        sprites.remove(self)
 
 class Tux(Sprite):
+    rest_fill_per_tick = 2 #equivalent to needing to sleep 8 hours per day
+    resting = False
+    resting_metabolic_rate = 0.5
+    wake_distance = 2
     def __init__(self,app, x=None, y=None):
+        g = constants.grid_size
+        self.snore_img = Image.open("sprites/snore.gif")
+        self.snore_frames = [Image.open("sprites/snore/snore-%i.gif" %(i)) for i in range(4)]
+        for index, frame in enumerate(self.snore_frames):
+            frame.thumbnail((1.5*g,1.5*g), Image.ANTIALIAS)
+            self.snore_frames[index] = ImageTk.PhotoImage(frame)
+        self.snore_frame = 0
         self.state={}
         with open("configs/tux.yaml", 'r') as stream:
             try:
@@ -51,7 +98,6 @@ class Tux(Sprite):
             state[stat]["max"]=state[stat]["qty"]
         h = constants.bounds["y"][1]
         w = constants.bounds["x"][1]
-        g = constants.grid_size
         cx = int(w/(2*g))
         cy = int(h/(2*g))
         img = Image.open("sprites/sm_tux.gif")
@@ -84,6 +130,36 @@ class Tux(Sprite):
         app.screen.grid[cy][cx].has_tux=True
         self.app = app
 
+    def increment_stat(self, stat, qty, over_max=False):
+        self.state[stat]["qty"]+=qty
+        if not over_max:
+            self.state[stat]["qty"] = min(self.state[stat]["qty"], self.state[stat]["max"])
+
+    def update_snore_sprite(self):
+        g = constants.grid_size
+        # img = Image.open("sprites/snore.gif")
+        cy = self.row
+        cx = self.column
+        # self.snore_sprite = ImageTk.PhotoImage(img)
+        
+        try:
+            self.app.screen.canvas.delete(self.snore_sprite)
+        except:
+            pass
+        self.snore_frame+=1
+        self.snore_frame = self.snore_frame % len(self.snore_frames)
+        self.snore_sprite = self.app.screen.canvas.create_image(((cx+1.5)*g)+5, ((cy-0.5)*g)+5, image=self.snore_frames[self.snore_frame])
+
+    def rest(self):
+        print("sleep")
+        self.resting = True
+    
+    def wake(self):
+        print("wake")
+        if self.resting:
+            self.app.screen.canvas.delete(self.snore_sprite)
+            self.resting = False
+
     def hit(self, damage):
         print("Hit")
         health = self.state["health"]["qty"]
@@ -98,16 +174,46 @@ class Tux(Sprite):
         improve_health = True
         state = self.state
         for stat in state:
-            if stat is not "health" and state[stat]["ticks"]:
-                state[stat]["qty"]+=state[stat]["tick"]
+            if stat != "health" and state[stat]["ticks"]:
+                if not self.resting:
+                    state[stat]["qty"]+=state[stat]["tick"]
+                elif stat == "energy":
+                    state[stat]["qty"]+=self.rest_fill_per_tick
+                else:
+                    # print(stat)
+                    state[stat]["qty"]+=state[stat]["tick"]*self.resting_metabolic_rate
+
                 stat_green = state[stat]["qty"] >= state[stat]["max"]/2
                 improve_health = improve_health and stat_green
+                state[stat]["qty"] = min(state[stat]["qty"], state[stat]["max"])
         if improve_health:
             state["health"]["qty"] += state["health"]["tick"]
             state["health"]["qty"] = min(state["health"]["qty"],state["health"]["max"])
+        
+        if state["energy"]["qty"] == state["energy"]["max"] and self.resting:
+            self.wake()
+
+        for monster in self.app.screen.monsters:
+            d = maps.sprite_distance(self, monster)
+            if d <= self.wake_distance:
+                self.wake()
+        if self.resting:
+            print("changing frame")
+            self.update_snore_sprite()
         self.app.update_status()
 
 
+class Tree(Sprite):
+    def __init__(self, app, x, y, g=constants.grid_size):
+        self.row=y
+        self.column=x
+        self.app = app
+        pass
+
+    def on_clock_tick(self, tick):
+        if tick % 50 == 0:
+            pass
+        neighbor = app.screen.neighbor_has(feature="tree", i=self.row,j=self.column)
 
 def Trees(app):
     h = constants.bounds["y"][1]

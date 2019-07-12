@@ -86,11 +86,11 @@ class Square(constants.correction):
         img.thumbnail((g,g))
         name = feature+"_sprite"
         # print name
-        if name not in app.sprites:
-            app.sprites[feature+"_sprite"] = ImageTk.PhotoImage(img)
+        if name not in app.sprite_images:
+            app.sprite_images[feature+"_sprite"] = ImageTk.PhotoImage(img)
         prop = "has_" + feature
         if (self.square_type == required_type and not self.occupied):
-                self.sprites[feature+"_sprite"] = app.screen.canvas.create_image(((self.column+0.5)*g)+5, ((self.row+0.5)*g)+5, image=app.sprites[feature+"_sprite"])                    
+                self.sprites[feature+"_sprite"] = app.screen.canvas.create_image(((self.column+0.5)*g)+5, ((self.row+0.5)*g)+5, image=app.sprite_images[feature+"_sprite"])                    
                 self[prop]=True
                 self.passable = passable
         # print str(self)

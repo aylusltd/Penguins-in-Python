@@ -43,6 +43,15 @@ def spear_check(l):
             s.update_inventory()
             return l(s,e)
     return wrapper
+def resting_check(l):
+    def wrapper(*args, **kwargs):
+        s = args[0]
+        e = args[1]
+        if s.tux.resting:
+            return None
+        else:
+            return l(s,e)
+    return wrapper
 
 def move_tux(l):
     def wrapper(*args, **kwargs):
@@ -81,6 +90,7 @@ def pause_game(s,e):
 
 @key_listener(key="a")
 @spear_check
+@resting_check
 def spear_left(s,e):
     y = s.tux.row
     x = s.tux.column
@@ -89,6 +99,7 @@ def spear_left(s,e):
 
 @key_listener(key="d")
 @spear_check
+@resting_check
 def spear_right(s,e):
     # print "spear_right"
     y = s.tux.row
@@ -98,6 +109,7 @@ def spear_right(s,e):
 
 @key_listener(key="w")
 @spear_check
+@resting_check
 def spear_up(s,e):
     y = s.tux.row
     x = s.tux.column
@@ -106,6 +118,7 @@ def spear_up(s,e):
 
 @key_listener(key="x")
 @spear_check
+@resting_check
 def spear_down(s,e):
     y = s.tux.row
     x = s.tux.column
@@ -113,6 +126,7 @@ def spear_down(s,e):
     # print "spear_down"
 
 @key_listener(key="h")
+@resting_check
 def harvest(s,e):
     r = s.tux.row
     c = s.tux.column
@@ -129,6 +143,7 @@ def harvest(s,e):
     # print "harvest"
 
 @key_listener(key="r")
+@resting_check
 def craft_spear(s,e):
     key = "spears"
     ingredients = ["wood", "rock"]
@@ -140,6 +155,7 @@ def craft_spear(s,e):
     # print "craft spear"
 
 @key_listener(key="b")
+@resting_check
 def craft_brick(s,e):
     key = "brick"
     ingredients = ["rock", "rock"]
@@ -151,6 +167,7 @@ def craft_brick(s,e):
     # print "craft brick"
 
 @key_listener(key="l")
+@resting_check
 def craft_wall(s,e):
     key = "wall"
     ingredients = ["brick", "brick", "brick", "brick", "brick"]
@@ -162,6 +179,7 @@ def craft_wall(s,e):
     # print "craft wall"
 
 @key_listener(key="q")
+@resting_check
 def place_fire(s,e):
     key = "fire"
     ingredients = ["wood", "wood", "rock", "rock"]
@@ -177,6 +195,7 @@ def place_fire(s,e):
     # print "place wall"
 
 @key_listener(key="p")
+@resting_check
 def place_wall(s,e):
     key = "wall"
     ingredients = ["wall"]
@@ -192,10 +211,11 @@ def place_wall(s,e):
     # print "place wall"
 
 @key_listener(key="z")
+@resting_check
 def destroy_wall(s,e):
     key = "wall"
-    ingredients = ["wall"]
-    inventory = s.inventory
+    # ingredients = ["wall"]
+    # inventory = s.inventory
     screen = s.screen
     r = s.tux.row
     c = s.tux.column
@@ -206,7 +226,39 @@ def destroy_wall(s,e):
         s.action = "destroy wall"
     # print "destroying wall"
 
+@key_listener(key="o")
+@resting_check
+def rest(s,e):
+    s.tux.rest()
+
+@key_listener(key="e")
+@resting_check
+def eat_fish(s,e):
+    ingredients = ["fish"]
+    inventory = s.inventory
+    consume_ingredients(ingredients, inventory)
+    s.tux.increment_stat(stat="hunger", qty=10)
+    s.update_status()
+    s.update_inventory()
+
+@key_listener(key=" ")
+@resting_check
+def drink_water(s,e):
+    print("drink water")
+    screen = s.screen
+    r = s.tux.row
+    c = s.tux.column
+    g = screen.grid
+    square = g[r][c]
+    touching_water = screen.neighbor_type(square_type="water", i=r, j=c)
+    if touching_water:
+        s.tux.increment_stat(stat="thirst", qty=10)
+        s.update_status()
+    else:
+        print("not touching water")
+
 @key_listener(key="f")
+@resting_check
 def catch_fish(s,e):
     key = "fish"
     # ingredients = ["fish"]
@@ -217,8 +269,8 @@ def catch_fish(s,e):
     c = s.tux.column
     g = s.screen.grid
     square = g[r][c]
-    touching_wall = screen.neighbor_has(feature=key, i=r, j=c)
-    if touching_wall:
+    touching_fish = screen.neighbor_has(feature=key, i=r, j=c)
+    if touching_fish:
         s.action = "catch fish"
     # print "destroying wall"
 
