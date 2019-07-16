@@ -7,14 +7,19 @@ from PIL import Image, ImageTk
 from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu, Canvas
 import yaml
 
-    
-
+# Why do these not work"    
+# from sprites.spear import Spear
+# from sprites.Fish import Fish
+# from sprites.Monster import Monster
+# When this does?
+from Classes.Square import Square
 import constants
 import maps
 
+
 mypath = dirname(__file__)
 Spear = load_source('Spear', mypath+'/sprites/spear.py').Spear
-Square = load_source('Square', mypath+'/Classes/Square.py').Square
+# Square = load_source('Square', mypath+'/Classes/Square.py').Square
 Fish = load_source('Fish', mypath+'/sprites/Fish.py').Fish
 Monster = load_source('Monster', mypath+'/sprites/Monster.py').Monster
 
@@ -93,6 +98,8 @@ class Tux(Sprite):
                 # print starting_inventory
             except yaml.YAMLError as exc:
                 print(exc)
+        self.attributes = self.state["attributes"]
+        self.state = self.state["stats"]
         state = self.state
         for stat in state:
             state[stat]["max"]=state[stat]["qty"]

@@ -1,28 +1,101 @@
+from imp import load_source
+from os.path import dirname
+
+import yaml
+
 import constants, sprites, maps
 listeners = []
-def key_listener(key = None, keycode = None, keysym = None, state=None):
+from Classes.Dictate import Dictate
+# mypath = dirname(__file__)
+# Dictate = load_source('Dictate', mypath+'/Classes/Dictate.py').Dictate
+
+
+with open("configs/keybindings.yaml", 'r') as stream:
+    key_bindings = yaml.safe_load(stream)
+props = ["key", "keycode", "keysym", "state"]
+bound_keys={
+    "None": {},
+    "8": {},
+    "9": {}
+}
+
+for state in bound_keys:
+    for prop in props:
+        bound_keys[state][prop] = {}
+
+for action_class in key_bindings:
+    for action in key_bindings[action_class]:
+        for prop in props:
+            try:
+                temp = key_bindings[action_class][action][prop]
+                if (
+                    prop == "state" and 
+                    temp is not None and 
+                    (temp < 8 or temp > 9)
+                    ):
+                    raise Exception("Invalid state")
+            except KeyError:
+                # print(prop + " not set for key: " + action + ".")
+                # print("Setting to None")
+                key_bindings[action_class][action][prop]=None
+
+for action_class in key_bindings:
+    for action in key_bindings[action_class]:
+        if key_bindings[action_class][action]["state"] is None:
+            for prop in props:
+                if prop != "state":
+                    if key_bindings[action_class][action]["state"] == 8:
+                        s = "8"
+                    elif key_bindings[action_class][action]["state"] == 9:
+                        s = "9"
+                    else:
+                        s = "None"
+                    temp = key_bindings[action_class][action][prop]
+                    bound_keys[s][prop][temp] = action_class + "_" + action
+
+KEY_BINDINGS = Dictate(key_bindings)
+# print(bound_keys)
+
+def key_listener(key = None, keycode = None, keysym = None, state=None, key_obj=None):
+    if key_obj is None:
+        obj = {
+            "key": key,
+            "keycode": keycode,
+            "keysym": keysym,
+            "state": state
+        }
+        key_obj = Dictate(obj)
+
     def faux_wrapper(l):
         def wrapper(*args, **kwargs):
+            
+            # Have to learn how to write a reduce here
+            all_None = True
+            for key in key_obj:
+                all_None = all_None and key_obj[key] is None
+            if all_None:
+                return None
+
             s = args[0]
             e = args[1]
-            if ((keycode is None or keycode == e.keycode) and 
-                (key is None or key == e.char) and
-                (keysym is None or keysym==e.keysym)
-                and state is None and e.state!=8
+            if ((key_obj.keycode is None or key_obj.keycode == e.keycode) and 
+                (key_obj.key is None or key_obj.key == e.char) and
+                (key_obj.keysym is None or key_obj.keysym==e.keysym)
+                and key_obj.state is None and e.state!=8
                 ):
                 if s.pause:
                     return None
                 else:
                     return l(*args, **kwargs)
-            elif state is not None:
+            elif key_obj.state is not None:
                 # print("state")
                 # print(state)
                 # print("e.state")
                 # print(e.state)
                 if state==e.state:
-                    if ((keycode is None or keycode == e.keycode) and 
-                        (key is None or key == e.char) and
-                        (keysym is None or keysym==e.keysym)
+                    if ((key_obj.keycode is None or key_obj.keycode == e.keycode) and 
+                        (key_obj.key is None or key_obj.key == e.char) and
+                        (key_obj.keysym is None or key_obj.keysym==e.keysym)
                         ):
                         return l(*args, **kwargs)
             else:
@@ -36,13 +109,14 @@ def spear_check(l):
     def wrapper(*args, **kwargs):
         s = args[0]
         e = args[1]
-        if s.inventory["spears"]["qty"] <= 0:
+        if s.inventory["spear"]["qty"] <= 0:
             return None
         else:
-            s.inventory["spears"]["qty"] -=1
+            s.inventory["spear"]["qty"] -=1
             s.update_inventory()
             return l(s,e)
     return wrapper
+
 def resting_check(l):
     def wrapper(*args, **kwargs):
         s = args[0]
@@ -88,7 +162,7 @@ def pause_game(s,e):
     print("toggling pause")
     s.pause = not s.pause
 
-@key_listener(key="a")
+@key_listener(key_obj=KEY_BINDINGS.spear.left)
 @spear_check
 @resting_check
 def spear_left(s,e):
@@ -97,7 +171,7 @@ def spear_left(s,e):
     s = sprites.Spear(s, d=90, x=x, y=y)
     # print "spear_left"
 
-@key_listener(key="d")
+@key_listener(key_obj=KEY_BINDINGS.spear.right)
 @spear_check
 @resting_check
 def spear_right(s,e):
@@ -107,7 +181,7 @@ def spear_right(s,e):
     s = sprites.Spear(s, d=270, x=x, y=y)
     # print "spear_right"
 
-@key_listener(key="w")
+@key_listener(key_obj=KEY_BINDINGS.spear.up)
 @spear_check
 @resting_check
 def spear_up(s,e):
@@ -116,7 +190,7 @@ def spear_up(s,e):
     s = sprites.Spear(s, d=0, x=x, y=y)
     # print "spear_up"
 
-@key_listener(key="x")
+@key_listener(key_obj=KEY_BINDINGS.spear.down)
 @spear_check
 @resting_check
 def spear_down(s,e):
@@ -145,8 +219,8 @@ def harvest(s,e):
 @key_listener(key="r")
 @resting_check
 def craft_spear(s,e):
-    key = "spears"
-    ingredients = ["wood", "rock"]
+    key = "spear"
+    ingredients = ["wood", "wood", "rock", "rock"]
     inventory = s.inventory
     if has_ingredients(ingredients, inventory):
         consume_ingredients(ingredients, inventory)
@@ -170,7 +244,7 @@ def craft_brick(s,e):
 @resting_check
 def craft_wall(s,e):
     key = "wall"
-    ingredients = ["brick", "brick", "brick", "brick", "brick"]
+    ingredients = ["brick", "brick", "brick", "brick"]
     inventory = s.inventory
     if has_ingredients(ingredients, inventory):
         consume_ingredients(ingredients, inventory)
@@ -290,7 +364,7 @@ def consume_ingredients(ingredients, inventory):
 
 
 # @key_listener(keycode=8320768)
-@key_listener(keysym="Up")
+@key_listener(key_obj=KEY_BINDINGS.move.up)
 @move_tux
 def move_up(s,e):
     g=s.g
@@ -304,7 +378,7 @@ def move_up(s,e):
         s.screen.make_next_screen(direction="Up", tux_x=s.tux.column, tux_y=h-1)
 
 # @key_listener(keycode=8255233)
-@key_listener(keysym="Down")
+@key_listener(key_obj=KEY_BINDINGS.move.down)
 @move_tux
 def move_down(s,e):
     g=s.g
@@ -316,7 +390,7 @@ def move_down(s,e):
         s.screen.make_next_screen(direction="Down", tux_x=s.tux.column, tux_y=0)
 
 # @key_listener(keycode=8124162)
-@key_listener(keysym="Left")
+@key_listener(key_obj=KEY_BINDINGS.move.left)
 @move_tux
 def move_left(s,e):
     g=s.g
@@ -328,7 +402,7 @@ def move_left(s,e):
         s.screen.make_next_screen(direction="Left", tux_x=s.max_column, tux_y=s.tux.row)
 
 # @key_listener(keycode=8189699)
-@key_listener(keysym="Right")
+@key_listener(key_obj=KEY_BINDINGS.move.right)
 @move_tux
 def move_right(s,e):
     g=s.g

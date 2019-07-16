@@ -3,7 +3,8 @@ import string
 import tracemalloc
 
 from PIL import Image, ImageTk
-from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu, Canvas
+from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu, Canvas, ttk, Toplevel
+import pyglet
 
 import craft
 import sprites
@@ -20,8 +21,129 @@ MALLOC_INTERVAL = 10
 MAKE_MONSTERS = True
 MAKE_FISH = True
 # MAKE_MONSTERS = False
+
 tracemalloc.start()
+class DragToplevel(Toplevel):
+    def __init__(self, master, image, x, y):
+        Toplevel.__init__(self, master)
+        self.overrideredirect(True)
+        self.geometry('+%i+%i' % (x, y))
+
+        self.image = image
+
+        self.label = Label(self, image=image, bg='red')
+        self.label.pack()
+
+    def move(self, x, y):
+        self.geometry('+%i+%i' % (x, y))
+
+    def end(self):
+        self.label.destroy()
+        self.destroy()
+
+class Canvas_Drag_Manager(Toplevel):
+    dragging=False
+    source=None
+    root = None
+
+    def on_start(self, event):
+        if self.dragging:
+            return None
+        x,y = event.widget.winfo_pointerxy()
+        self.source = target = event.widget.winfo_containing(x,y)
+        items = target.find_closest(event.x, event.y)
+        if items:
+            self.image = target.itemcget(items[0], 'image')
+            for hook in self.drag_hooks:
+                t = hook(event, target, self.image)
+                if t is False:
+                    return None
+        self.TL = DragToplevel(self.root, self.image, x, y)
+        self.dragging = True
+
+    def on_drag(self, event):
+        if self.dragging is False:
+            return None
+        x,y = event.widget.winfo_pointerxy()
+        # self.target = event.widget.winfo_containing(x,y)
+        for hook in self.move_hooks:
+            hook(event, self.source, self.image)
+        self.TL.move(x,y)
+
+    def on_drop(self, event):
+        # find the widget under the cursor
+        if self.dragging is False:
+            return None
+        x,y = event.widget.winfo_pointerxy()
+        self.drop_target = event.widget.winfo_containing(x,y)
+        for hook in self.drop_hooks:
+            hook(event, self.drop_target, self.source, self.image)
+        self.TL.end()
+        del(self.image)
+        del(self.source)
+        self.dragging=False
+
+    def add_drag_hook(self, hook):
+        self.drag_hooks.append(hook)
+        return len(self.drag_hooks)-1
+
+    def remove_drag_hook(self, index):
+        del self.drag_hooks[index]
+
+    def add_drop_hook(self, hook):
+        self.drop_hooks.append(hook)
+        return len(self.drop_hooks)-1
+
+    def remove_drop_hook(self, index):
+        del self.drop_hooks[index]
+
+    def add_move_hook(self, hook):
+        self.move_hooks.append(hook)
+        return len(self.move_hooks)-1
+
+    def remove_move_hook(self, index):
+        del self.move_hooks[index]
+
+    def __init__(self, root, canvases, drop_hook=None, move_hook=None, drag_hook=None):
+        # tkinter.Toplevel.__init__(self, master)
+        if type(canvases) is list:
+            self.canvases = canvases
+        elif canvases is not None:
+            self.canvases = [canvases]
+        else:
+            self.canvases=[]
+
+        if type(drop_hook) is list:
+            self.drop_hooks = drop_hook
+        elif drop_hook is not None:
+            self.drop_hooks = [drop_hook]
+        else:
+            self.drop_hooks=[]
+
+        if type(move_hook) is list:
+            self.move_hooks = move_hook
+        elif move_hook is not None:
+            self.move_hooks = [move_hook]
+        else:
+            self.move_hooks=[]
+
+        if type(drag_hook) is list:
+            self.drag_hooks = drag_hook
+        elif drag_hook is not None:
+            self.drag_hooks = [drag_hook]
+        else:
+            self.drag_hooks=[]
+
+        self.root = root
+
+        for widget in self.canvases:
+            widget.bind("<ButtonPress-1>", self.on_start)
+            widget.bind("<B1-Motion>", self.on_drag)
+            widget.bind("<ButtonRelease-1>", self.on_drop)
+            widget.configure(cursor="hand1")
+
 class Application(Frame):
+    Canvas_Drag_Manager=Canvas_Drag_Manager
     g=constants.grid_size
     selected_square=None
     tick=0
@@ -131,18 +253,9 @@ class Application(Frame):
                 sprite.on_clock_tick(self.tick)
                 try:
                     sprite.on_clock_tick(self.tick)
-                except AttributeError:
+                except AttributeError as err:
                     print(sprite)
-                    # pass
-
-            # for fish in self.screen.fishes:
-            #     fish.moved = False
-            #     fish.move(app=self)
-
-            # for monster in self.screen.monsters:
-            #     monster.moved = False
-            #     monster.move(app=self)
-
+                    raise err
 
             self.tux.on_clock_tick(self.tick)
             self.tick+=1
@@ -192,7 +305,6 @@ class Application(Frame):
         g=grid
         h=g * 1.5
         w=width
-        self.tux.state["energy"]["qty"]-=60
         self.status_canvas=Canvas(self.frame3, height=h+10, width=w+10, background="gray")
         self.update_status()
 
@@ -201,16 +313,23 @@ class Application(Frame):
         # 1000 x 180
         # g = 40
         row=1;
-        for key in self.inventory:    
-            si[key]["s"]=StringVar()
-            si[key]["s"].set(self.inventory[key]["qty"])
-            si[key]["l1"]=Label(self.frame2, text=si[key]["display"]+": ", bg="gray")
-            si[key]["l2"]=Label(self.frame2, textvariable=si[key]["s"], bg="gray")
-            si[key]["l1"].grid(row=row, column=0, sticky="we")
-            si[key]["l2"].grid(row=row, column=1, sticky="we")
-            row+=1
-        if si["fish"]["qty"] <= 0:
-            print("Dieded")
+        for key in self.inventory:
+            if self.inventory[key]["qty"] > 0:    
+                si[key]["s"]=StringVar()
+                si[key]["s"].set(self.inventory[key]["qty"])
+                si[key]["l1"]=Label(self.frame2, text=si[key]["display"]+": ", bg="gray")
+                si[key]["l2"]=Label(self.frame2, textvariable=si[key]["s"], bg="gray")
+                si[key]["l1"].grid(row=row, column=0, sticky="we")
+                si[key]["l2"].grid(row=row, column=1, sticky="we")
+                row+=1
+            else:
+                try: 
+                    si[key]["s"]
+                    si[key]["l1"].destroy()
+                    si[key]["l2"].destroy()
+                    si[key]["s"]= None
+                except KeyError:
+                    pass
 
     def update_status(self):
         g = self.g
@@ -254,7 +373,7 @@ class Application(Frame):
                 fill=state[stat]["full"],
                 outline="")
             # state[stat]["s"] = StringVar()
-            state[stat]["s"]= state[stat]["display"]+": " + str(q)
+            state[stat]["s"]= state[stat]["display"]+": " + str(int(q))
 
             state[stat]["l1"] = canvas.create_text(((column+1)*g+10, row*g+10), text=state[stat]["s"], fill=state[stat]["label"])
             # state[stat]["l1"]=Label(self.frame3, text=state[stat]["display"]+": ", bg="gray")
@@ -280,8 +399,6 @@ class Application(Frame):
         self.frame3.pack(fill="x", side="bottom")
         self.status_canvas.pack(fill=BOTH, expand=1)
 
-        self.frame.pack(fill=BOTH, expand=1, side="left")
-        self.frame2.pack(fill=BOTH, expand=1, side="right")
 
         # self.root.grid_rowconfigure(0, weight=1)
         # self.root.grid_columnconfigure(0, weight=1)
@@ -290,12 +407,15 @@ class Application(Frame):
         # frame.grid(row=0, column=0, sticky="nsew")
         # frame2.grid(row=0, column=1, sticky="nsew")
         # frame3.grid(row=1, column=0, columnspan=2, sticky="ew")
+        self.frame2.pack(fill=BOTH, expand=1, side="right")
 
-        # Not used I think
-        self.craft_button = Button(self.frame2, text="craft")
-        self.craft_button.grid(row=0, column=0, sticky="we")
+        # Switched to ttk button for Mac. Need to test on other systems
+        self.craft_button = ttk.Button(self.frame2, text="Craft")
+        self.craft_button.grid(row=0, column=0, columnspan=2, sticky="we")
         self.craft_button["command"]=self.craft.create_window
-
+        self.frame2.pack(fill=BOTH, expand=1, side="right")
+        
+        self.frame.pack(fill=BOTH, expand=1, side="left")
         self.screen.canvas.focus_set()
         self.screen.canvas.bind("<Key>", self.keypress)
 
@@ -342,14 +462,21 @@ class Application(Frame):
         filemenu.add_command(label="Exit", command=root.quit, accelerator="Cmd-Q")
         menubar.add_cascade(label="File", menu=filemenu)
         root.config(menu=menubar)
-
+        # Delet later, debugging craft menu
+        # self.craft.create_window()
 
 root = Tk()
 root.focus_force()
 root.tkraise()
 app = Application(master=root)
-app.mainloop()
-try: 
-    root.destroy()
-except:
-    print("Couldn't destroy root. Maybe try a bigger drill?")
+
+def main():
+    app.mainloop()
+    pyglet.app.run()
+    try: 
+        root.destroy()
+    except:
+        print("Couldn't destroy root. Maybe try a bigger drill?")
+
+if __name__ == '__main__':
+    main()

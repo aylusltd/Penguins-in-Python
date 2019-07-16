@@ -1,11 +1,29 @@
+import time
+import sys
+
+from os.path import dirname
+from imp import load_source
+
 import constants
 import random
 import string
 from PIL import Image, ImageTk
 
+
+# Preloading sound to memory
+mypath = dirname(__file__)
+temp_sound_path = 'sounds/punch.wav'
+print('temp_sound_path')
+print(temp_sound_path)
+Sound = load_source('Sound', mypath+'/../Classes/Sound.py').Sound
+my_sound = Sound(temp_sound_path)
+my_sound.load()
+
 class Spear(constants.correction):
     def __init__(self,app, d=0, x=None, y=None):
         int(d)
+        self.sound = my_sound
+        # self.sound.load()
         self.pause = False
         self.app = app
         h = constants.bounds["y"][1]
@@ -30,7 +48,7 @@ class Spear(constants.correction):
         self.move()
 
     def destroy(self):
-        print("Destroying")
+        print("Destroying Spear")
         # print self.app.spears.index(self)
         self.app.spears.remove(self)
         self.valid = False
@@ -101,9 +119,11 @@ class Spear(constants.correction):
         if self.app.screen.grid[self.row][self.column].occupied:
             for monster in self.app.screen.monsters:
                 if monster.row == self.row and monster.column == self.column:
-                    monster.destroy()
-                    del monster
-                    print("monster")
+                    monster.hit(1)
+                    self.sound.play()
+                    # time.sleep(10)
+                    # del monster
+                    # print("monster")
                     return True
             self.pause = False
             return False

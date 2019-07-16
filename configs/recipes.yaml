@@ -1,0 +1,13 @@
+# Configuration matters.
+# The position on the crafting surface must match what's listed
+spear:
+  - ["rock"]
+  - ["rock"]
+  - ["wood"]
+  - ["wood"]
+brick:
+  - ["rock"]
+  - ["rock"]
+wall:
+  - ["brick", "brick"]
+  - ["brick", "brick"]

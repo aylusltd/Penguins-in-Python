@@ -1,33 +1,58 @@
-health:
-  display: Health
-  qty : 100
-  full: green
-  empty: red
-  tick: 1
-  ticks: True
-  label: black
-energy:
-  display: Energy
-  qty : 100
-  full: green
-  empty: red
-  tick: -0.5
-  ticks: True
-  label: black
-thirst:
-  display: Thirst
-  qty : 100
-  full: green
-  empty: red
-  tick: -0.5
-  ticks: True
-  label: black
-hunger:
-  display: Hunger
-  qty : 100
-  full: green
-  empty: red
-  tick: -0.5
-  ticks: True
-  label: black
-
+stats:
+  health:
+    display: Health
+    qty : 100
+    full: green
+    empty: red
+    tick: 1
+    ticks: True
+    label: black
+  energy:
+    display: Energy
+    qty : 100
+    full: green
+    empty: red
+    tick: -0.5
+    ticks: True
+    label: black
+  thirst:
+    display: Thirst
+    qty : 100
+    full: green
+    empty: red
+    tick: -0.5
+    ticks: True
+    label: black
+  hunger:
+    display: Hunger
+    qty : 100
+    full: green
+    empty: red
+    tick: -0.5
+    ticks: True
+    label: black
+attributes:
+  stength: 
+    current_level: 1
+    experience: 0
+  dexterity: 
+    current_level: 1
+    experience: 0
+  stamina: 
+    current_level: 1
+    experience: 0
+  fortitude: 
+    current_level: 1
+    experience: 0
+  intelligence: 
+    current_level: 1
+    experience: 0
+  perception: 
+    current_level: 1
+    experience: 0
+  charisma: 
+    current_level: 1
+    experience: 0
+  wisdom: 
+    current_level: 1
+    experience: 0

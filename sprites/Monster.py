@@ -1,19 +1,39 @@
 import random
 import string
+import time
+
+from os.path import dirname
+from imp import load_source
 
 from PIL import Image, ImageTk
 
 import constants
 import maps
+# Preloading sound to memory
+mypath = dirname(__file__)
+temp_sound_path = 'sounds/hit.wav'
+print('temp_sound_path')
+print(temp_sound_path)
+Sound = load_source('Sound', mypath+'/../Classes/Sound.py').Sound
+my_sound = Sound(temp_sound_path)
+my_sound.load()
 
 class Monster(constants.correction):
     def __init__(self,app, x=None, y=None):
         # constants.l('Placing self',{})
+        self.sound = my_sound
+        self.health=2
         h = constants.bounds["y"][1]
         w = constants.bounds["x"][1]
         g = constants.grid_size
-        cx = int(w/(2*g)+1)
-        cy = int(h/(2*g))
+        x_dist = random.randint(4,8)
+        y_dist = random.randint(3,7)
+        if random.randint(0,1)<1:
+            x_dist = -x_dist
+        if random.randint(0,1)<1:
+            y_dist = -y_dist
+        cx = int(w/(2*g)+x_dist)
+        cy = int(h/(2*g)+y_dist)
         img = Image.open("sprites/sm_monster.gif")
 
         self.f_sprite = ImageTk.PhotoImage(img)
@@ -60,8 +80,14 @@ class Monster(constants.correction):
 
         self.app.screen.monsters.remove(self)
         self.app.sprites.remove(self)
-        
+        del self
 
+    def hit(self, damage):
+        self.health -= damage
+        if self.health <= 0:
+            self.destroy()
+        else:
+            print(self.health)
     def fire_flee_test(self, app):
         fires = app.screen.fires
         closest_fire_dist = self.fire_fear + 0.1
@@ -144,9 +170,12 @@ class Monster(constants.correction):
                     grid[self.row][self.column].has_monster = True
                     
                 elif current_square.neighbor_has_tux(direction=move_direction):
+                    self.sound.play()
+                    time.sleep(0.25)
                     print("tux hit!")
                     print("")
                     app.tux.hit(10)
+
                 else:
                     self.moved = False
                 

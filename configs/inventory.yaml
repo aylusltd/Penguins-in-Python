@@ -1,18 +1,24 @@
 wood: 
   display: Wood
-  qty : 1
-spears: 
+  qty : 10
+  img: sm_tree.gif
+spear: 
   display: Spears
   qty: 10
+  img: sm_spear.gif
 fish: 
   display: Fish
   qty: 4
+  img: sm_fish.gif
 rock: 
   display: Rock
-  qty: 2
+  qty: 20
+  img: sm_rock.gif
 brick:
   display: Bricks
   qty: 0
+  img: sm_wall.gif
 wall:
   display: Wall
   qty: 3
+  img: sm_wall.gif

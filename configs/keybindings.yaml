@@ -1,0 +1,21 @@
+spear:
+  left: 
+    key: "a"
+  right: 
+    key: "d"
+  up:
+    key: "w"
+  down:
+    key: "x"
+move:
+  left:
+    keysym: "Left"
+  right:
+    keysym: "Right"
+  up:
+    keysym: "Up"
+  down:
+    keysym: "Down"
+# craft:
+#   spear: ""
+#   brick: ""

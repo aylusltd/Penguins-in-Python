@@ -121,7 +121,7 @@ class Square(constants.correction):
             neighbor = self.app.screen.grid[self.row + delta["y"]][self.column + delta["x"]]
         except IndexError:
             # Neighbor doesn't exist
-            print("Neighbor doesn't exist")
+            # print("Neighbor doesn't exist")
             return False
 
         # Must be one of the allowed types unless None
@@ -176,7 +176,7 @@ class Square(constants.correction):
             neighbor = self.app.screen.grid[self.row + delta["y"]][self.column + delta["x"]]
         except IndexError:
             # Neighbor doesn't exist
-            print("Neighbor doesn't exist")
+            # print("Neighbor doesn't exist")
             return False
 
         return neighbor.has_tux        
