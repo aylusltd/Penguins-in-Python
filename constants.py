@@ -89,6 +89,7 @@ NORTH = Direction("north")
 SOUTH = Direction("south")
 EAST = Direction("east")
 WEST = Direction("west")
+DIRECTIONS = [NORTH, SOUTH, EAST, WEST]
 
 grid_size = 40
 INTERVAL  = 20

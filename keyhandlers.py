@@ -131,11 +131,11 @@ def move_tux(l):
     def wrapper(*args, **kwargs):
         s=args[0]
         grid = s.screen.grid
-        grid[s.tux.row][s.tux.column].occupied = False
-        grid[s.tux.row][s.tux.column].has_tux = False
+        # grid[s.tux.row][s.tux.column].occupied = False
+        # grid[s.tux.row][s.tux.column].has_tux = False
         l(*args, **kwargs)
-        grid[s.tux.row][s.tux.column].occupied = True
-        grid[s.tux.row][s.tux.column].has_tux = True
+        # grid[s.tux.row][s.tux.column].occupied = True
+        # grid[s.tux.row][s.tux.column].has_tux = True
     return wrapper
 
 # CMD+s (So far only tested right CMD)
@@ -371,9 +371,7 @@ def move_up(s,e):
     h=len(s.screen.grid)
     w=len(s.screen.grid[0])
     if s.tux.row > 0:
-            if s.screen.grid[s.tux.row-1][s.tux.column].passable:
-                s.screen.canvas.move(s.tux.sprite,0,-g)
-                s.tux.row-=1
+        s.tux.move(constants.NORTH)
     else:
         s.screen.make_next_screen(direction="Up", tux_x=s.tux.column, tux_y=h-1)
 
@@ -383,9 +381,7 @@ def move_up(s,e):
 def move_down(s,e):
     g=s.g
     if s.tux.row < s.max_row:
-        if s.screen.grid[s.tux.row+1][s.tux.column].passable:
-            s.screen.canvas.move(s.tux.sprite,0,g)
-            s.tux.row+=1
+        s.tux.move(constants.SOUTH)
     else:
         s.screen.make_next_screen(direction="Down", tux_x=s.tux.column, tux_y=0)
 
@@ -395,9 +391,7 @@ def move_down(s,e):
 def move_left(s,e):
     g=s.g
     if s.tux.column > 0:
-        if s.screen.grid[s.tux.row][s.tux.column-1].passable:
-            s.screen.canvas.move(s.tux.sprite,-g,0)
-            s.tux.column-=1
+        s.tux.move(constants.WEST)
     else:
         s.screen.make_next_screen(direction="Left", tux_x=s.max_column, tux_y=s.tux.row)
 
@@ -407,9 +401,7 @@ def move_left(s,e):
 def move_right(s,e):
     g=s.g
     if s.tux.column < s.max_column:
-        if s.screen.grid[s.tux.row][s.tux.column+1].passable:
-            s.screen.canvas.move(s.tux.sprite,g,0)
-            s.tux.column+=1
+        s.tux.move(constants.EAST)
     else:
         s.screen.make_next_screen(direction="Right", tux_x=0, tux_y=s.tux.row)
 
@@ -418,7 +410,7 @@ def on_keypress(s, event):
     w = constants.bounds["x"][1]
     g = constants.grid_size
     c = s.screen.canvas
-    p=c.coords(s.tux.sprite)
+    p = c.coords(s.tux.canvas_sprite)
 
     current_row = int((p[1]-4)/g)
     current_column = int((p[0]-4)/g)
@@ -426,9 +418,9 @@ def on_keypress(s, event):
     s.tux.column=current_column
     s.max_row = int(h/g)-1
     s.max_column = int(w/g)-1
-    s.screen.grid[current_row][current_column].occupied = False
+    # s.screen.grid[current_row][current_column].occupied = False
     
     for l in listeners:
             l(s,event)
-    s.screen.grid[s.tux.row][s.tux.column].occupied = True
+    # s.screen.grid[s.tux.row][s.tux.column].occupied = True
     # s.root.after(constants.INTERVAL*2, s.monsters_move)

@@ -2,14 +2,18 @@
 from PIL import Image, ImageTk
 from os import listdir
 from os.path import isfile, join, realpath, abspath, dirname
-from importlib import load_source
+from imp import load_source
 
 mypath = dirname(__file__)
 print(mypath)
-constants = load_source('constants', mypath+'/../constants.py')
+constants_path = mypath+'../constants.py'
+print('constants_path')
+print(constants_path)
+
+constants = load_source('constants', constants_path)
 g = constants.grid_size
 
-onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f)) and "camp_fire.gif" in f and "sm_" not in f]
+onlyfiles = [f for f in listdir('./') if isfile(f) and "sm_tux_W2B.gif" in f] # and "sm_" not in f]
 
 for img in onlyfiles:
     full_path = join(mypath,img)

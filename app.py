@@ -1,18 +1,22 @@
 #!/usr/local/bin/python
+import os
 import string
 import tracemalloc
+
+from threading import Thread
 
 from PIL import Image, ImageTk
 from tkinter import Tk, Frame, BOTH, StringVar, Label, Button, Menu, Canvas, ttk, Toplevel
 import pyglet
 
 import craft
-import sprites
+import sprites as Sprites
 import maps
-
 import constants
+
 from keyhandlers import on_keypress
 from starting_inventory import starting_inventory
+from Classes.Sound import Sound
 
 MALLOC_LOG = False
 move_counter = 0
@@ -28,9 +32,7 @@ class DragToplevel(Toplevel):
         Toplevel.__init__(self, master)
         self.overrideredirect(True)
         self.geometry('+%i+%i' % (x, y))
-
         self.image = image
-
         self.label = Label(self, image=image, bg='red')
         self.label.pack()
 
@@ -163,7 +165,7 @@ class Application(Frame):
         x = s.column
         y = s.row
         m = self.screen.monsters
-        monster = sprites.Monster(self, x=x, y=y)
+        monster = Sprites.Monster(self, x=x, y=y)
         if monster.placed: 
             m.append(monster)
             self.sprites.append(monster)
@@ -175,7 +177,7 @@ class Application(Frame):
         x = s.column
         y = s.row
         f = self.screen.fishes
-        fish = sprites.Fish(self, x=x, y=y)
+        fish = Sprites.Fish(self, x=x, y=y)
         if fish.placed: 
             f.append(fish)
             self.sprites.append(fish)
@@ -264,7 +266,7 @@ class Application(Frame):
     def add_sprites(self, tux_x=None, tux_y=None, monsters=[], fishes=[]):
         global MAKE_MONSTERS
         print('add_sprites')
-        self.tux = sprites.Tux(self,x=tux_x, y=tux_y)
+        self.tux = Sprites.Tux(self,x=tux_x, y=tux_y)
         
         if len(monsters)>0:
             print('value of monsters argument')
@@ -279,7 +281,7 @@ class Application(Frame):
         print(fishes)
         if MAKE_MONSTERS and len(m) == 0:
             for i in range(0,1):
-                monster = sprites.Monster(self)
+                monster = Sprites.Monster(self)
                 if monster.placed: 
                     m.append(monster)
                     self.sprites.append(monster)
@@ -287,15 +289,15 @@ class Application(Frame):
                     m[l].ind = l
         if MAKE_FISH and len(f) == 0:
             for i in range(0,10):
-                fish = sprites.Fish(self)
+                fish = Sprites.Fish(self)
                 if fish.placed: 
                     f.append(fish)
                     self.sprites.append(fish)
                     l = len(f) - 1
                     f[l].ind = l
         # Consumables added here
-        sprites.Rocks(self)
-        sprites.Trees(self)
+        Sprites.Rocks(self)
+        Sprites.Trees(self)
 
     def display_inventory(self):
         self.inventory = starting_inventory
@@ -338,6 +340,8 @@ class Application(Frame):
         row = 0.25
         column = 0
         span = 3
+
+        # Stats can be dynamically added
         state["mana"] = {
               "display": "Mana",
               "qty" : 100,
@@ -348,6 +352,7 @@ class Application(Frame):
               "ticks": False,
               "label" : "white"
         }
+
         for stat in state:
             q = state[stat]["qty"]
             m = state[stat]["max"]
@@ -388,26 +393,18 @@ class Application(Frame):
         self.frame2 = Frame(root)
         self.frame3 = Frame(root)
 
-        self.screen = sprites.Screen(self)
+        self.screen = Sprites.Screen(self)
         x=self.screen.current_map["x"]
         y=self.screen.current_map["y"]
+
         self.add_sprites()
         self.screen.grids[y][x] = maps.save(app=self, in_memory=True)
         self.screen.canvas.pack(fill=BOTH, expand=1)
         self.display_inventory()
         self.display_status()
+
         self.frame3.pack(fill="x", side="bottom")
         self.status_canvas.pack(fill=BOTH, expand=1)
-
-
-        # self.root.grid_rowconfigure(0, weight=1)
-        # self.root.grid_columnconfigure(0, weight=1)
-        # self.root.grid_columnconfigure(1, weight=1)
-
-        # frame.grid(row=0, column=0, sticky="nsew")
-        # frame2.grid(row=0, column=1, sticky="nsew")
-        # frame3.grid(row=1, column=0, columnspan=2, sticky="ew")
-        self.frame2.pack(fill=BOTH, expand=1, side="right")
 
         # Switched to ttk button for Mac. Need to test on other systems
         self.craft_button = ttk.Button(self.frame2, text="Craft")
@@ -428,6 +425,17 @@ class Application(Frame):
         self.popup.add_command(label="Make Rocks", command=self.make_rocks)
         self.popup.add_command(label="Make Trees", command=self.make_trees)
         self.popup.add_command(label="Make Fish", command=self.make_fish)
+
+    def bg_music_player(self):
+        snd = Sound('sounds/TuxBackground.wav')
+        snd.load()
+        snd.play()
+        # snd = pyglet.media.load('sounds/TuxBackground.wav')
+        # player = pyglet.media.Player()
+        # player.queue(snd)
+        # player.loop = True
+        # player.eos_action = player.EOS_LOOP
+        # player.play()
 
     def __init__(self, master=None):
         self.pause=False
@@ -464,6 +472,7 @@ class Application(Frame):
         root.config(menu=menubar)
         # Delet later, debugging craft menu
         # self.craft.create_window()
+        self.bg_music_player()
 
 root = Tk()
 root.focus_force()
@@ -472,7 +481,7 @@ app = Application(master=root)
 
 def main():
     app.mainloop()
-    pyglet.app.run()
+    # pyglet.app.run()    
     try: 
         root.destroy()
     except:

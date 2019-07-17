@@ -82,7 +82,7 @@ class Square(constants.correction):
     
     def add_feature(self, feature, app, required_type="grass", passable=True):
         g = constants.grid_size
-        img = Image.open("sprites/sm_"+feature+".gif")
+        img = Image.open("sprites/Tiles/sm_"+feature+".gif")
         img.thumbnail((g,g))
         name = feature+"_sprite"
         # print name
