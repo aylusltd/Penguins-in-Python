@@ -5,6 +5,7 @@ from tkinter import filedialog
 
 import constants
 import sprites
+from Classes.Square import Square
 
 def save_world(app, filename=None, in_memory=False):
     prev_state = app.pause
@@ -83,7 +84,7 @@ def load(app, filename=None, from_memory=None):
         screen_rows.append([])
         for cell in file_row:
             # def __init__(self, row, column, canvas, app, g=constants.grid_size, square_type='grass')
-            s = sprites.Square(
+            s = Square(
                     row         = int(cell["row"]), 
                     column      = int(cell["column"]),
                     app         = app,
@@ -104,31 +105,29 @@ def load(app, filename=None, from_memory=None):
             x=tux["column"],
             y=tux["row"]
         )
-    app.screen.monsters=[]
-    app.screen.fishes = []
-    m = app.screen.monsters
-    f = app.screen.fishes
+    app.sprites=[]
+    s = app.sprites
     for sprite in saved_sprites:
         # def __init__(self, app, x=None, y=None)
         x = sprite["column"]
         y = sprite["row"]
         if sprite["type"] == "virus":
-            m.append(sprites.Monster(
+            s.append(sprites.Monster(
                 app = app, 
                 x = x,
                 y = y
             ))
-            l = len(m) - 1
-            m[l].ind = l
+            l = len(s) - 1
+            s[l].ind = l
             app.screen.grid[y][x].occupied=True
         elif sprite["type"] == "fish":
-            f.append(sprites.Fish(
+            s.append(sprites.Fish(
                 app = app, 
                 x = x,
                 y = y
             ))
-            l=len(f)-1
-            f[l].ind = l
+            l=len(s)-1
+            s[l].ind = l
 
 
 def save(app, filename=None, in_memory=False):

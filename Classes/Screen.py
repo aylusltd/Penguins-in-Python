@@ -75,6 +75,7 @@ class Screen(constants.correction):
                     else:
                         pass
         return False
+
     def neighbor_type(self, i,j, square_type='water'):
         for x in range(-1,1):
             for y in range(-1,1):
@@ -91,6 +92,8 @@ class Screen(constants.correction):
         self.app.screen.monsters=[]
         self.app.screen.fishes=None
         self.app.screen.fishes=[]
+        self.app.sprites=None
+        self.app.sprites=[]
         print('generate_screen')
         print(self.app.screen.fishes)
         # print(self)
@@ -142,10 +145,15 @@ class Screen(constants.correction):
                 if self.current_map["y"] == 0 and i==0:
                     square_type = 'water'
 
-                s = Square(i,j, self.canvas, app=self.app, square_type=square_type)
+                try:
+                    s = Square(i,j, self.canvas, app=self.app, square_type=square_type)
+                except:
+                    print("r=", r)
+                    raise Exception("Boom")
                 new_grid[i].append(s)
 
         return new_grid
+
     def make_next_screen(self, direction, tux_x, tux_y):
         print(self.current_map)
         x = self.current_map["x"]

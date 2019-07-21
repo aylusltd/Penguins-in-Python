@@ -13,7 +13,7 @@ print(constants_path)
 constants = load_source('constants', constants_path)
 g = constants.grid_size
 
-onlyfiles = [f for f in listdir('./') if isfile(f) and "sm_tux_W2B.gif" in f] # and "sm_" not in f]
+onlyfiles = [f for f in listdir('./') if isfile(f) and "bridge" in f] # and "sm_" not in f]
 
 for img in onlyfiles:
     full_path = join(mypath,img)

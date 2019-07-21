@@ -337,7 +337,10 @@ def catch_fish(s,e):
     key = "fish"
     # ingredients = ["fish"]
     # inventory = s.inventory
-    # s.config(cursor='circle red red')
+    # s.configure(cursor='circle red red')
+    s.screen.canvas.configure(cursor='circle red red')
+    # widget.configure(cursor="hand1")
+
     screen = s.screen
     r = s.tux.row
     c = s.tux.column

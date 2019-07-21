@@ -17,7 +17,7 @@ rock:
 brick:
   display: Bricks
   qty: 0
-  img: Items/sm_wall.gif
+  img: Items/sm_brick.gif
 wall:
   display: Wall
   qty: 3

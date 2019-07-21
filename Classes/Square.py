@@ -42,7 +42,7 @@ class Square(constants.correction):
 	                    self.app.inventory["fish"]["qty"]+=10
 	                    self.app.update_inventory()
 	                    print("caught fish")
-
+            self.app.screen.canvas.configure(cursor="")
             self.app.action = None
             # self.app.config(cursor = "arrow black black")
 
@@ -79,6 +79,9 @@ class Square(constants.correction):
         self.has_wall = False
         self.has_fish = False
         self.sprites={}
+        self.has_bridge = {}
+        for direction in constants.DIRECTIONS:
+            self.has_bridge[direction.val] = False
     
     def add_feature(self, feature, app, required_type="grass", passable=True):
         g = constants.grid_size
@@ -110,6 +113,31 @@ class Square(constants.correction):
                 self[prop] = False
                 self.passable = make_passable
                 self.app.screen.canvas.delete(self.sprites[feature+"_sprite"])
+    
+    def add_bridge(self, direction):
+        # add appropriate sprite
+        sprite_suffix = ''
+        if direction in [constants.NORTH, constants.SOUTH]:
+            sprite = 'sm_bridge_NS.gif'
+            sprite_suffix = '_NS'
+        elif direction in [constants.EAST, constants.WEST]:
+            sprite = 'sm_bridge_EW.gif'
+            sprite_suffix = '_EW'
+        else:
+            raise Exception("invalid direction")
+        sprite = 'sprites/Tiles/' + sprite
+        sprite_image = Image.open(sprite)
+        try:
+            a = self.app.sprite_images["bridge_sprite" + sprite_suffix]
+            if a is None:
+                raise KeyError()
+        except KeyError:
+            self.app.sprite_images["bridge_sprite" + sprite_suffix] = sprite_image
+        self.sprites["bridge_sprite"] = self.app.screen.canvas.create_image(((self.column+0.5)*g)+5, ((self.row+0.5)*g)+5, image=self.app.sprite_images["bridge_sprite" + sprite_suffix])                    
+
+        # make passable in only that direction
+        self.has_bridge[direction.val] = True
+        self.has_bridge[(~direction).val] = True
 
     def neighbor_is(self, direction=None, allowed_types=["grass"], allowed_features=None, forbidden_types=None, forbidden_features=None, passable=True, occupied=False):
         if direction is None:

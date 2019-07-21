@@ -267,18 +267,13 @@ class Application(Frame):
         global MAKE_MONSTERS
         print('add_sprites')
         self.tux = Sprites.Tux(self,x=tux_x, y=tux_y)
-        
-        if len(monsters)>0:
-            print('value of monsters argument')
-            print(monsters)
-            raise Exception()
         self.screen.monsters=monsters
         self.screen.fishes=fishes
         m = self.screen.monsters
         f = self.screen.fishes
-        print('self.screen.monsters')
-        print(self.screen.monsters)
-        print(fishes)
+        self.sprites += m
+        self.sprites += f
+
         if MAKE_MONSTERS and len(m) == 0:
             for i in range(0,1):
                 monster = Sprites.Monster(self)

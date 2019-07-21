@@ -94,6 +94,7 @@ class Tux(Sprite):
     def rest(self):
         print("sleep")
         self.resting = True
+        self.update_snore_sprite()
     
     def wake(self):
         print("wake")
@@ -117,7 +118,8 @@ class Tux(Sprite):
         s = self.app
         delta = maps.move(direction, 1)
         g = constants.grid_size
-        if s.screen.grid[s.tux.row+delta["y"]][s.tux.column + delta["x"]].passable:
+        square = s.screen.grid[s.tux.row+delta["y"]][s.tux.column + delta["x"]]
+        if square.passable or square.has_bridge[direction.val]:
             self.animate_move(direction)
 
     def round_pos(self, digits=0):
@@ -188,9 +190,14 @@ class Tux(Sprite):
                 stat_green = state[stat]["qty"] >= state[stat]["max"]/2
                 improve_health = improve_health and stat_green
                 state[stat]["qty"] = min(state[stat]["qty"], state[stat]["max"])
+                if state[stat]["qty"] < 0:
+                    state[stat]["qty"] = 0
+                    state["health"]["qty"]-=1
+                
         if improve_health:
             state["health"]["qty"] += state["health"]["tick"]
             state["health"]["qty"] = min(state["health"]["qty"],state["health"]["max"])
+            state["health"]["qty"] = max(state["health"]["qty"],0)
         
         if state["energy"]["qty"] == state["energy"]["max"] and self.resting:
             self.wake()

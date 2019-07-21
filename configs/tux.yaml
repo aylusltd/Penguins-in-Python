@@ -12,7 +12,7 @@ stats:
     qty : 100
     full: green
     empty: red
-    tick: -0.5
+    tick: -0.25
     ticks: True
     label: black
   thirst:
@@ -20,7 +20,7 @@ stats:
     qty : 100
     full: green
     empty: red
-    tick: -0.5
+    tick: -0.25
     ticks: True
     label: black
   hunger:
@@ -28,7 +28,7 @@ stats:
     qty : 100
     full: green
     empty: red
-    tick: -0.5
+    tick: -0.25
     ticks: True
     label: black
 attributes:
