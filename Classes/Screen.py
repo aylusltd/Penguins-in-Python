@@ -137,6 +137,8 @@ class Screen(constants.correction):
                             square_type = 'snow'
                         elif self.neighbor_type(i,j, square_type='sand'):
                             square_type = 'sand'
+                        else:
+                            square_type = 'grass'
                     
                     else:
                         square_type = 'grass'

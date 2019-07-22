@@ -193,6 +193,8 @@ class Tux(Sprite):
                 if state[stat]["qty"] < 0:
                     state[stat]["qty"] = 0
                     state["health"]["qty"]-=1
+                    state["health"]["qty"] = max(state["health"]["qty"],0)
+
                 
         if improve_health:
             state["health"]["qty"] += state["health"]["tick"]
